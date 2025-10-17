@@ -389,7 +389,7 @@ export default function ImpactSprintPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="text-white border-2 border-white/80 hover:bg-white/10 hover:border-white px-8 py-4 text-lg rounded-xl backdrop-blur-sm transition-all duration-300 transform hover:scale-105"
+                className="bg-white text-emerald-700 hover:bg-slate-100 px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 Découvrir les projets
               </Button>
