@@ -1,0 +1,4784 @@
+///////////////////////////////////////////////////////////////////////////////////
+//@/app/page.tsx
+/*
+🌍 Page d’accueil / Présentation d’Impact Rush
+Impact Rush : Penser, Décider, Agir. Ensemble.
+
+Impact Rush est une plateforme intégrée d’innovation sociale qui relie réflexion collective, décision partagée et financement participatif.
+Notre mission : transformer les idées citoyennes en actions concrètes et mesurables, grâce à un écosystème collaboratif unique.
+*/
+
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Sparkles,
+  TrendingUp,
+  Award,
+  Users,
+  Target,
+} from "lucide-react";
+
+// Composants d'icônes SVG personnalisées
+const BlogIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 7H16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 11H16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 15H12"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const RocketIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const CircleIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 8V12L15 15"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Composant de chargement
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center">
+    <div className="text-center space-y-4">
+      <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
+      <p className="text-white text-lg font-semibold">Chargement...</p>
+    </div>
+  </div>
+);
+
+// Gestionnaire d'événements analytics
+const trackEvent = (category: string, action: string, label: string) => {
+  // Safely access gtag with a type assertion to avoid TypeScript errors
+  if (typeof window !== "undefined") {
+    const gtag = (window as any).gtag;
+    if (gtag) {
+      gtag("event", action, {
+        event_category: category,
+        event_label: label,
+        page_location: window.location.href,
+      });
+    }
+  }
+  // Console log pour le développement
+  console.log(`Track: ${category} - ${action} - ${label}`);
+};
+
+export default function HomePage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Simulation du chargement des ressources
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Gestionnaires de clics pour le tracking
+  const handleCTAClick = (section: string, action = "click") => {
+    trackEvent("cta", action, `hero_${section}`);
+  };
+
+  const handleCardClick = (cardName: string) => {
+    trackEvent("navigation", "card_click", cardName);
+  };
+
+  const handleStatsView = () => {
+    trackEvent("engagement", "stats_view", "homepage_stats");
+  };
+
+  if (!mounted || isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0" aria-hidden="true">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-yellow-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-300/15 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      {/* Hero Section */}
+      <section
+        className="relative overflow-hidden"
+        role="banner"
+        aria-label="Présentation principale d'Impact Rush"
+      >
+        <div className="absolute inset-0 bg-black/5" aria-hidden="true" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
+          <div className="space-y-8 md:space-y-10">
+            {/* Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-white/15 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
+              role="status"
+            >
+              <Sparkles
+                className="w-4 h-4 md:w-5 md:h-5 text-yellow-300"
+                aria-hidden="true"
+              />
+              <span className="text-xs md:text-sm font-semibold text-white/90 tracking-wide">
+                L'ÉCOSYSTÈME D'ACTION COLLECTIVE
+              </span>
+            </div>
+
+            {/* Main Title */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] tracking-tight">
+              Change
+              <span className="block bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400 bg-clip-text text-transparent drop-shadow-lg mt-2">
+                the World
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+            <div className="space-y-4 max-w-4xl mx-auto">
+              <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-light">
+                L'écosystème qui transforme vos{" "}
+                <span className="font-semibold text-yellow-200">idées</span> en{" "}
+                <span className="font-semibold text-orange-200">
+                  actions concrètes
+                </span>
+              </p>
+
+              {/* Description */}
+              <div
+                className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-base md:text-lg text-white/80 font-medium"
+                role="list"
+                aria-label="Processus de transformation"
+              >
+                <span role="listitem">Réflexion</span>
+                <div
+                  className="w-2 h-2 bg-yellow-300 rounded-full"
+                  aria-hidden="true"
+                ></div>
+                <span role="listitem">Financement</span>
+                <div
+                  className="w-2 h-2 bg-orange-300 rounded-full"
+                  aria-hidden="true"
+                ></div>
+                <span role="listitem">Action collective</span>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="pt-6 md:pt-8 space-y-4">
+              <button
+                onClick={() => handleCTAClick("primary")}
+                className="group bg-white/15 backdrop-blur-md border border-white/25 text-white px-8 py-4 md:px-10 md:py-5 rounded-full text-base md:text-lg font-semibold hover:bg-white/25 hover:border-white/40 transition-all duration-500 hover:scale-105 shadow-2xl shadow-black/20 focus:outline-none focus:ring-4 focus:ring-white/30"
+                aria-label="Rejoindre la communauté Impact Rush"
+              >
+                <span className="flex items-center gap-2 md:gap-3">
+                  Rejoindre la communauté
+                  <ArrowRight
+                    className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform duration-300"
+                    aria-hidden="true"
+                  />
+                </span>
+              </button>
+
+              {/* Trust indicators */}
+              <div
+                className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs md:text-sm text-white/70 pt-4"
+                role="list"
+                aria-label="Indicateurs de confiance"
+              >
+                <div
+                  className="flex items-center gap-1 md:gap-2"
+                  role="listitem"
+                >
+                  <Users className="w-3 h-3 md:w-4 md:h-4" aria-hidden="true" />
+                  <span>1000+ membres</span>
+                </div>
+                <div
+                  className="w-1 h-1 bg-white/50 rounded-full"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  className="flex items-center gap-1 md:gap-2"
+                  role="listitem"
+                >
+                  <Award className="w-3 h-3 md:w-4 md:h-4" aria-hidden="true" />
+                  <span>95% de réussite</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Cards Section */}
+      <section
+        className="py-16 md:py-24 px-4 sm:px-6 lg:px-8"
+        role="region"
+        aria-label="Les trois piliers d'Impact Rush"
+      >
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Trois piliers{" "}
+              <span className="text-yellow-300">interconnectés</span>
+            </h2>
+            <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto">
+              Un écosystème complet pour maximiser votre impact positif
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* The Blog Card */}
+            <Link
+              href="/blog"
+              className="group"
+              onClick={() => handleCardClick("the_blog")}
+              aria-label="Découvrir The Blog - Réflexions et articles"
+            >
+              <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/10 backdrop-blur-xl border border-white/15 p-6 md:p-8 h-full hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-700 cursor-pointer">
+                {/* Glow effect */}
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl md:rounded-3xl blur-xl"
+                  aria-hidden="true"
+                ></div>
+
+                {/* Hover Effect Overlay */}
+                <div
+                  className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  aria-hidden="true"
+                />
+
+                <div className="relative z-10 space-y-4 md:space-y-6 h-full flex flex-col">
+                  {/* Icon with enhanced styling */}
+                  <div className="relative">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-lg group-hover:shadow-blue-500/25 transition-shadow duration-300">
+                      <BlogIcon />
+                    </div>
+                    <div
+                      className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-xl md:rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur"
+                      aria-hidden="true"
+                    ></div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-blue-200 transition-colors duration-300">
+                    The Blog
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-white/90 leading-relaxed flex-grow text-sm md:text-base">
+                    Explorez nos réflexions sur la technologie, le développement
+                    personnel, la spiritualité et les enjeux de société.{" "}
+                    <span className="font-semibold text-blue-200">
+                      8 rubriques
+                    </span>{" "}
+                    pour nourrir votre vision du monde.
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2 text-xs md:text-sm text-white/70">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-blue-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>Architecture optimisée</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-blue-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>Tags transversaux</span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="flex items-center gap-2 text-white font-semibold group-hover:translate-x-2 transition-transform duration-300 pt-2 md:pt-4">
+                    <span className="text-sm md:text-base">
+                      Lire les articles
+                    </span>
+                    <ArrowRight
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Impact Sprint Card */}
+            <Link
+              href="/projects"
+              className="group"
+              onClick={() => handleCardClick("impact_sprint")}
+              aria-label="Découvrir Impact Sprint - Financement de projets"
+            >
+              <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-green-500/20 to-emerald-600/10 backdrop-blur-xl border border-white/15 p-6 md:p-8 h-full hover:scale-[1.02] hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-700 cursor-pointer">
+                {/* Glow effect */}
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl md:rounded-3xl blur-xl"
+                  aria-hidden="true"
+                ></div>
+
+                {/* Hover Effect Overlay */}
+                <div
+                  className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  aria-hidden="true"
+                />
+
+                <div className="relative z-10 space-y-4 md:space-y-6 h-full flex flex-col">
+                  {/* Icon with enhanced styling */}
+                  <div className="relative">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-lg group-hover:shadow-green-500/25 transition-shadow duration-300">
+                      <RocketIcon />
+                    </div>
+                    <div
+                      className="absolute -inset-1 bg-gradient-to-r from-green-400 to-emerald-600 rounded-xl md:rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur"
+                      aria-hidden="true"
+                    ></div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-green-200 transition-colors duration-300">
+                    Impact Sprint
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-white/90 leading-relaxed flex-grow text-sm md:text-base">
+                    Révolutionnez votre soutien aux projets.{" "}
+                    <span className="font-semibold text-green-200">
+                      100 projets
+                    </span>{" "}
+                    dans 6 catégories. Pariez sur plusieurs projets
+                    simultanément,{" "}
+                    <span className="font-semibold text-yellow-200">
+                      le premier arrivé remporte tout !
+                    </span>
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2 text-xs md:text-sm text-white/70">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-green-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>Risque limité, impact max</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-green-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>Course en temps réel</span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="flex items-center gap-2 text-white font-semibold group-hover:translate-x-2 transition-transform duration-300 pt-2 md:pt-4">
+                    <span className="text-sm md:text-base">
+                      Commencer mon Sprint
+                    </span>
+                    <ArrowRight
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* The Circles Card */}
+            <Link
+              href="/thecircles"
+              className="group"
+              onClick={() => handleCardClick("the_circles")}
+              aria-label="Découvrir The Circles - Gouvernance collaborative"
+            >
+              <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-orange-500/20 to-yellow-600/10 backdrop-blur-xl border border-white/15 p-6 md:p-8 h-full hover:scale-[1.02] hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-700 cursor-pointer">
+                {/* Glow effect */}
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl md:rounded-3xl blur-xl"
+                  aria-hidden="true"
+                ></div>
+
+                {/* Hover Effect Overlay */}
+                <div
+                  className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  aria-hidden="true"
+                />
+
+                <div className="relative z-10 space-y-4 md:space-y-6 h-full flex flex-col">
+                  {/* Icon with enhanced styling */}
+                  <div className="relative">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-orange-400 to-yellow-600 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-lg group-hover:shadow-orange-500/25 transition-shadow duration-300">
+                      <CircleIcon />
+                    </div>
+                    <div
+                      className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-yellow-600 rounded-xl md:rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur"
+                      aria-hidden="true"
+                    ></div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-orange-200 transition-colors duration-300">
+                    The Circles
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-white/90 leading-relaxed flex-grow text-sm md:text-base">
+                    Gouvernance collaborative révolutionnaire. Participez aux
+                    décisions, organisez des projets.{" "}
+                    <span className="font-semibold text-orange-200">
+                      Démocratie participative
+                    </span>{" "}
+                    où chaque voix compte.
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2 text-xs md:text-sm text-white/70">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-orange-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>Rôles tournants</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 bg-orange-300 rounded-full"
+                        aria-hidden="true"
+                      ></div>
+                      <span>10€/mois pour agir</span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="flex items-center gap-2 text-white font-semibold group-hover:translate-x-2 transition-transform duration-300 pt-2 md:pt-4">
+                    <span className="text-sm md:text-base">
+                      Rejoindre un cercle
+                    </span>
+                    <ArrowRight
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Stats Section */}
+      <section
+        className="py-12 md:py-20 bg-black/15 backdrop-blur-sm border-t border-white/10"
+        role="region"
+        aria-label="Chiffres clés et impact"
+        onMouseEnter={handleStatsView}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+              L'impact en <span className="text-yellow-300">chiffres</span>
+            </h2>
+            <p className="text-white/70 text-base md:text-lg">
+              Une communauté qui grandit et transforme
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 text-center">
+            {[
+              {
+                number: "1000+",
+                label: "Membres actifs",
+                icon: "👥",
+                color: "from-blue-400 to-blue-600",
+              },
+              {
+                number: "100",
+                label: "Projets disponibles",
+                icon: "🎯",
+                color: "from-green-400 to-green-600",
+              },
+              {
+                number: "50+",
+                label: "Cercles thématiques",
+                icon: "⭕",
+                color: "from-orange-400 to-orange-600",
+              },
+              {
+                number: "95%",
+                label: "Projets réussis",
+                icon: "🏆",
+                color: "from-yellow-400 to-yellow-600",
+              },
+            ].map((stat, index) => (
+              <div key={index} className="group" role="listitem">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105 border border-white/10">
+                  <div
+                    className="text-2xl md:text-4xl mb-2 md:mb-4"
+                    aria-hidden="true"
+                  >
+                    {stat.icon}
+                  </div>
+                  <div className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 md:mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-white/70 text-xs md:text-sm font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Footer CTA */}
+      <section
+        className="text-center py-12 md:py-20 px-4 sm:px-6 lg:px-8"
+        role="region"
+        aria-label="Appel à l'action final"
+      >
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl md:rounded-3xl p-6 md:p-12 border border-white/20 shadow-2xl">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 md:mb-6">
+              Prêt à <span className="text-yellow-300">changer le monde</span> ?
+            </h2>
+            <p className="text-white/80 text-base md:text-lg lg:text-xl mb-6 md:mb-10 max-w-2xl mx-auto leading-relaxed">
+              Rejoignez une communauté qui unit réflexion et action pour créer
+              un futur plus{" "}
+              <span className="font-semibold text-green-200">éthique</span> et{" "}
+              <span className="font-semibold text-blue-200">collaboratif</span>
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+              <button
+                onClick={() => handleCTAClick("footer_primary")}
+                className="group bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-6 py-3 md:px-10 md:py-4 rounded-full text-base md:text-lg hover:shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300/50"
+                aria-label="Commencer maintenant sur Impact Rush"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  Commencer maintenant
+                  <ArrowRight
+                    className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform duration-300"
+                    aria-hidden="true"
+                  />
+                </span>
+              </button>
+
+              <Link
+                href="/comment-ca-marche"
+                onClick={() => handleCTAClick("footer_secondary")}
+                className="border-2 border-white/30 text-white font-semibold px-6 py-3 md:px-10 md:py-4 rounded-full text-base md:text-lg hover:bg-white/10 hover:border-white/50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/30 text-center"
+                aria-label="En savoir plus sur le fonctionnement d'Impact Rush"
+              >
+                Comment ça marche ?
+              </Link>
+            </div>
+
+            {/* Additional trust elements */}
+            <div
+              className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mt-6 md:mt-8 text-xs md:text-sm text-white/60"
+              role="list"
+              aria-label="Garanties et engagements"
+            >
+              <span role="listitem">✅ 100% transparent</span>
+              <span role="listitem">✅ Gouvernance éthique</span>
+              <span role="listitem">✅ Impact mesurable</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+//////////////////////////////////////////////////////////
+//@/app/faq.tsx
+/*
+💬 FAQ – Tout comprendre sur Impact Rush
+*/
+
+"use client";
+
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Users,
+  Target,
+  BookOpen,
+  Shield,
+  Rocket,
+} from "lucide-react";
+
+export default function FAQ() {
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const toggleSection = (sectionId: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
+
+  const faqData = [
+    {
+      id: "about",
+      title: "🔍 À propos d'Impact Rush",
+      icon: <Target className="w-5 h-5" />,
+      questions: [
+        {
+          id: "what-is",
+          question: "Qu'est-ce qu'Impact Rush ?",
+          answer: `Impact Rush est une plateforme d'innovation sociale qui relie réflexion collective, décision partagée et financement participatif. C'est un écosystème complet composé de trois outils connectés :
+
+🔄 The Circle – la communauté qui réfléchit, sélectionne et décide des projets.
+
+💸 The Plateforme – le moteur de financement participatif (dons et Impact Sprint).
+
+📰 mondoBlog – le média collaboratif et la mémoire vivante de la communauté.`,
+        },
+        {
+          id: "difference",
+          question:
+            "Quelle est la différence entre Impact Rush et une plateforme de crowdfunding classique ?",
+          answer: `Contrairement aux plateformes de dons traditionnelles, Impact Rush ne se limite pas à collecter des fonds. Nous intégrons tout le cycle de l'action collective :
+
+Penser → Décider → Financer → Agir → Documenter.
+
+Les projets sont issus d'une réflexion communautaire structurée et accompagnés jusqu'à leur réalisation. L'objectif : un impact durable, mesuré et transparent.`,
+        },
+      ],
+    },
+    {
+      id: "circle",
+      title: "🔄 The Circle – La Communauté d'Action",
+      icon: <Users className="w-5 h-5" />,
+      questions: [
+        {
+          id: "what-is-circle",
+          question: "Qu'est-ce qu'un 'Cercle' ?",
+          answer:
+            "Un Cercle est un groupe de 3 à 15 membres réunis autour d'une thématique (écologie, éducation, inclusion, culture, innovation sociale…). Chaque Cercle réfléchit, débat, sélectionne et accompagne des projets concrets liés à son sujet.",
+        },
+        {
+          id: "join-circle",
+          question: "Comment rejoindre un Cercle ?",
+          answer: `📝 Inscrivez-vous sur Impact Rush.
+
+💳 Adhérez à la communauté (10 €/mois).
+
+🎯 Choisissez le Cercle correspondant à vos centres d'intérêt.
+
+🤝 Participez activement aux réunions (en visio ou en ligne via mondoBlog).
+
+Chaque membre est invité à contribuer selon ses compétences, son temps et ses moyens.`,
+        },
+        {
+          id: "subscriptions",
+          question: "Que deviennent les cotisations des membres ?",
+          answer: `La cotisation est transparente et équitable :
+
+80 % sont affectés directement au financement de projets décidés par les Cercles.
+
+20 % couvrent les frais de fonctionnement et de plateforme.
+
+Des bilans financiers publics sont publiés chaque mois sur mondoBlog.`,
+        },
+        {
+          id: "values",
+          question: "Quelles sont les valeurs des Cercles ?",
+          answer: `Les Cercles reposent sur six valeurs fondamentales :
+🧭 Éthique | 🤝 Solidarité | 🌍 Durabilité | 🌈 Ouverture | 🔍 Transparence | 🌱 Participation active.
+
+Chaque membre s'engage à les respecter et à contribuer dans un esprit de bienveillance et de co-responsabilité.`,
+        },
+      ],
+    },
+    {
+      id: "platform",
+      title: "💸 The Plateforme – Le Moteur de Financement",
+      icon: <Rocket className="w-5 h-5" />,
+      questions: [
+        {
+          id: "how-funding-works",
+          question:
+            "Comment fonctionne le financement participatif sur Impact Rush ?",
+          answer: `Impact Rush repose sur un modèle innovant appelé Impact Sprint :
+
+• Les projets validés participent à une "course" de financement bienveillante.
+• Les donateurs ("Sprinters") soutiennent plusieurs projets.
+• Le premier projet à atteindre son objectif reçoit les dons réels.
+
+Ce système crée une dynamique ludique et collective, tout en garantissant la transparence et la sécurité des fonds.`,
+        },
+        {
+          id: "who-can-propose",
+          question: "Qui peut proposer un projet ?",
+          answer: `Il existe deux voies :
+
+🟢 Proposition externe : tout porteur de projet peut soumettre une campagne.
+
+🟣 Proposition soutenue par un Cercle : un projet validé par The Circle obtient le label "Soutenu par The Circle" et bénéficie d'une meilleure visibilité.`,
+        },
+        {
+          id: "project-types",
+          question: "Quels types de projets peuvent être financés ?",
+          answer: `Les projets doivent présenter un impact positif et mesurable dans au moins un des trois domaines :
+
+🌿 Environnemental (écologie, énergie, agriculture durable…)
+
+🤝 Social (éducation, inclusion, solidarité…)
+
+💶 Économique (innovation locale, économie circulaire, emploi durable…)`,
+        },
+        {
+          id: "funding-types",
+          question: "Quels sont les types de financement proposés ?",
+          answer: `Impact Rush prend en charge plusieurs formes de financement participatif :
+
+🎁 Don participatif (avec ou sans contrepartie) – modèle principal et actif.
+
+📈 Investissement (equity crowdfunding) – en préparation.
+
+📄 Prêt participatif (crowdlending) – en préparation.
+
+(Actuellement, seuls les dons sont disponibles pour garantir la conformité et la simplicité d'usage.)`,
+        },
+        {
+          id: "revenue",
+          question: "Comment la plateforme se rémunère-t-elle ?",
+          answer: `Impact Rush ne prend aucun frais d'inscription ni de dépôt de projet. Une commission de 5 à 7 % est prélevée uniquement sur les campagnes réussies, couvrant :
+
+• les frais de transaction et d'hébergement,
+• la maintenance et la sécurité,
+• la réinjection dans les programmes de formation et de gouvernance.`,
+        },
+      ],
+    },
+    {
+      id: "mondoblog",
+      title: "📰 mondoBlog – La Mémoire Vivante",
+      icon: <BookOpen className="w-5 h-5" />,
+      questions: [
+        {
+          id: "purpose-blog",
+          question: "À quoi sert mondoBlog ?",
+          answer: `mondoBlog est le média collaboratif de la communauté Impact Rush. Il permet :
+
+• De partager des réflexions et articles d'impact.
+• De documenter les projets soutenus par les Cercles.
+• D'assurer une transparence totale sur les décisions et les financements.
+
+C'est la mémoire vivante de la communauté.`,
+        },
+        {
+          id: "who-can-publish",
+          question: "Qui peut publier sur mondoBlog ?",
+          answer: `✅ Lecture : ouverte à tous les visiteurs (articles publics, bilans, transparence).
+
+✍️ Publication : réservée aux membres inscrits ou aux Cercles.
+
+• Les membres individuels peuvent proposer des articles.
+• Les Cercles disposent d'un espace privé pour rédiger comptes-rendus et réflexions collectives.`,
+        },
+        {
+          id: "gamification",
+          question: "Pourquoi un système de gamification (XP) ?",
+          answer: `Le système d'Impact Experience Points (XP) valorise la contribution des membres. Chaque action — écrire, partager, financer, inviter — génère des points. Les membres progressent selon leur niveau d'implication, jusqu'à devenir :
+
+• Sprinter Débutant
+• Eco-Rusher
+• Impact Leader
+• Legend of Impact
+
+Ce mécanisme encourage la participation et la reconnaissance collective.`,
+        },
+      ],
+    },
+    {
+      id: "security",
+      title: "⚙️ Sécurité, transparence et cadre légal",
+      icon: <Shield className="w-5 h-5" />,
+      questions: [
+        {
+          id: "data-protection",
+          question: "Comment mes données et mes fonds sont-ils protégés ?",
+          answer:
+            "Impact Rush respecte les normes européennes (RGPD) et s'appuie sur des partenaires financiers agréés pour le séquestre des fonds. Les dons ne sont transférés aux porteurs de projets qu'après validation du succès de la campagne.",
+        },
+        {
+          id: "legal-status",
+          question: "Les Cercles ont-ils une existence juridique ?",
+          answer:
+            "Non. Les Cercles sont des communautés d'individus (personnes physiques) sans personnalité morale. Chaque projet est porté par une entité légale distincte (association, entreprise, coopérative ou individu) responsable de sa gestion.",
+        },
+        {
+          id: "company-type",
+          question: "Impact Rush est-elle une entreprise ou une association ?",
+          answer:
+            "Impact Rush fonctionne sur un modèle hybride d'innovation sociale. Selon les régions, elle peut opérer sous forme d'association, de SCIC (Société Coopérative d'Intérêt Collectif) ou d'entreprise à mission. L'objectif reste le même : réinvestir les bénéfices dans les projets à impact et le développement de la communauté.",
+        },
+        {
+          id: "impact-measurement",
+          question: "Comment mesurer l'impact réel des projets ?",
+          answer: `Chaque projet soutenu fait l'objet d'un bilan d'impact publié sur mondoBlog. Les indicateurs sont définis à l'avance :
+
+• Nombre de bénéficiaires,
+• Tonnes de CO₂ évitées,
+• Emplois créés,
+• Indicateurs sociaux ou économiques spécifiques.
+
+Les bilans deviennent des ressources d'apprentissage pour toute la communauté.`,
+        },
+      ],
+    },
+    {
+      id: "join",
+      title: "🚀 Rejoindre l'aventure Impact Rush",
+      icon: <Rocket className="w-5 h-5" />,
+      questions: [
+        {
+          id: "why-join",
+          question: "Pourquoi rejoindre Impact Rush ?",
+          answer:
+            "Parce qu'ici, vous n'êtes pas un simple spectateur : vous devenez acteur du changement, en participant à un modèle qui relie intelligence collective, action concrète et transparence.",
+        },
+        {
+          id: "how-start",
+          question: "Comment commencer ?",
+          answer: `• Créez votre profil sur Impact Rush.
+• Explorez les Cercles et rejoignez celui qui vous correspond.
+• Contribuez à la réflexion et aux décisions collectives.
+• Soutenez ou proposez des projets à impact positif.
+• Suivez les résultats et partagez vos apprentissages sur mondoBlog.`,
+        },
+        {
+          id: "contribute-without-circle",
+          question: "Puis-je contribuer sans être membre d'un Cercle ?",
+          answer: `Oui ✅
+Vous pouvez :
+
+• Lire mondoBlog,
+• Soutenir des projets sur la Plateforme,
+• Participer à des campagnes d'Impact Sprint.
+
+Les Cercles sont réservés à ceux qui souhaitent s'impliquer activement dans la gouvernance et la co-création.`,
+        },
+        {
+          id: "summary",
+          question: "En résumé ?",
+          answer:
+            "Impact Rush, c'est la plateforme où l'intelligence collective devient action. Ici, la même communauté pense, décide et agit pour créer un monde plus éthique, durable et solidaire.",
+        },
+      ],
+    },
+  ];
+
+  // Filtrer les questions basé sur la recherche
+  const filteredData = faqData
+    .map((section) => ({
+      ...section,
+      questions: section.questions.filter(
+        (q) =>
+          q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          q.answer.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter((section) => section.questions.length > 0);
+
+  const formatAnswer = (text: string) => {
+    return text.split("\n").map((line, index) => {
+      const content = typeof line === "string" ? line : String(line ?? "");
+      if (content.trim() === "") return <br key={index} />;
+
+      // Détecter les emojis et les listes
+      const match = content.match(/^[•\-🟢🟣✅✍️🎁📈📄🌿🤝💶🎯🤝🧭🌍🌈🔍🌱]/);
+      if (match) {
+        return (
+          <div key={index} className="flex items-start gap-2 py-1">
+            <span className="flex-shrink-0">
+              {match[0]}
+            </span>
+            <span>{content.substring(1).trim()}</span>
+          </div>
+        );
+      }
+
+      return (
+        <p key={index} className="py-1">
+          {content}
+        </p>
+      );
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            💬 FAQ Impact Rush
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Tout comprendre sur notre écosystème d'innovation sociale
+          </p>
+
+          {/* Search Bar */}
+          <div className="relative max-w-2xl mx-auto">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Rechercher dans la FAQ..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+            />
+          </div>
+        </div>
+
+        {/* FAQ Content */}
+        <div className="space-y-6">
+          {filteredData.map((section) => (
+            <div
+              key={section.id}
+              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+            >
+              {/* Section Header */}
+              <button
+                onClick={() => toggleSection(section.id)}
+                className="w-full px-6 py-6 text-left hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="text-blue-600">{section.icon}</div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {section.title}
+                  </h2>
+                </div>
+                {openSections[section.id] ? (
+                  <ChevronUp className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
+
+              {/* Section Questions */}
+              {openSections[section.id] && (
+                <div className="border-t border-gray-100">
+                  {section.questions.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className={`border-b border-gray-50 ${
+                        index === section.questions.length - 1
+                          ? "border-b-0"
+                          : ""
+                      }`}
+                    >
+                      <div className="px-6 py-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                          {item.question}
+                        </h3>
+                        <div className="text-gray-600 leading-relaxed space-y-2">
+                          {formatAnswer(item.answer)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* No Results */}
+        {filteredData.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Aucun résultat trouvé
+            </h3>
+            <p className="text-gray-600">
+              Essayez d'autres termes de recherche
+            </p>
+          </div>
+        )}
+
+        {/* CTA Footer */}
+        <div className="text-center mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+          <h3 className="text-2xl font-bold mb-4">
+            Vous avez d'autres questions ?
+          </h3>
+          <p className="text-blue-100 mb-6 text-lg">
+            Notre communauté est là pour vous aider
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-50 transition-colors duration-200">
+              Contacter le support
+            </button>
+            <button className="border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white/10 transition-colors duration-200">
+              Rejoindre la communauté
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+///////////////////////////////////////////
+
+//@/app/thecircles/page.tsx
+/*
+🔄 Page de présentation – The Circle
+The Circle : la communauté qui décide et agit
+*/
+
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import {
+  Users,
+  Calendar,
+  MessageCircle,
+  Target,
+  Zap,
+  Heart,
+  Globe,
+  Search,
+  Plus,
+  ArrowRight,
+  Clock,
+  Video,
+  FileText,
+  Lightbulb,
+  Shield,
+  Coins,
+  TreePine,
+  TrendingUp,
+  Award,
+  BarChart3,
+  CheckCircle,
+  User,
+  Eye,
+  Crown,
+  BookOpen,
+  Vote,
+  RotateCcw,
+} from "lucide-react";
+
+// Données basées sur votre architecture The Circles
+const circleCategories = [
+  {
+    id: "ecology",
+    name: "Écologie & Environnement",
+    icon: "🌱",
+    description: "Agriculture durable, économie circulaire, biodiversité",
+    activeCircles: 8,
+    totalMembers: 156,
+    monthlyBudget: 1240,
+    color: "from-green-500 to-emerald-600",
+    nextMeeting: "2025-10-22",
+  },
+  {
+    id: "social",
+    name: "Social & Solidarité",
+    icon: "❤️",
+    description: "Insertion, éducation, santé communautaire",
+    activeCircles: 12,
+    totalMembers: 203,
+    monthlyBudget: 2030,
+    color: "from-red-500 to-pink-600",
+    nextMeeting: "2025-10-20",
+  },
+  {
+    id: "tech",
+    name: "Tech Éthique",
+    icon: "💻",
+    description: "IA responsable, privacy, numérique inclusif",
+    activeCircles: 6,
+    totalMembers: 89,
+    monthlyBudget: 890,
+    color: "from-blue-500 to-cyan-600",
+    nextMeeting: "2025-10-25",
+  },
+  {
+    id: "culture",
+    name: "Culture & Patrimoine",
+    icon: "🎨",
+    description: "Arts, patrimoine local, transmission culturelle",
+    activeCircles: 5,
+    totalMembers: 67,
+    monthlyBudget: 670,
+    color: "from-purple-500 to-violet-600",
+    nextMeeting: "2025-10-21",
+  },
+  {
+    id: "economy",
+    name: "Économie Alternative",
+    icon: "🤝",
+    description: "Coopératives, monnaies locales, ESS",
+    activeCircles: 4,
+    totalMembers: 78,
+    monthlyBudget: 780,
+    color: "from-orange-500 to-amber-600",
+    nextMeeting: "2025-10-24",
+  },
+  {
+    id: "education",
+    name: "Éducation & Savoirs",
+    icon: "📚",
+    description: "Pédagogies alternatives, éducation populaire",
+    activeCircles: 7,
+    totalMembers: 134,
+    monthlyBudget: 1340,
+    color: "from-indigo-500 to-blue-600",
+    nextMeeting: "2025-10-23",
+  },
+];
+
+const featuredCircles = [
+  {
+    id: 1,
+    name: "Écologie Urbaine Lyon",
+    category: "Écologie & Environnement",
+    description: "Actions concrètes pour une ville plus verte et résiliente",
+    members: 24,
+    currentProject: "Verger Participatif Bellecour",
+    projectBudget: 5000,
+    projectProgress: 78,
+    meetingMode: "synchrone",
+    nextMeeting: "2025-10-22",
+    facilitator: "Marie Dupont",
+    monthlyBudget: 240,
+    tags: ["Permaculture", "Urbain", "Communauté"],
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: "Tech for Good Paris",
+    category: "Tech Éthique",
+    description: "Développer une technologie au service de l'humain",
+    members: 18,
+    currentProject: "App de don alimentaire local",
+    projectBudget: 8000,
+    projectProgress: 45,
+    meetingMode: "asynchrone",
+    nextSprint: "2025-10-25",
+    facilitator: "Alex Chen",
+    monthlyBudget: 180,
+    tags: ["IA Éthique", "Open Source", "Social"],
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: "Éducation Alternative",
+    category: "Éducation & Savoirs",
+    description: "Repenser l'apprentissage pour tous les âges",
+    members: 31,
+    currentProject: "École démocratique rurale",
+    projectBudget: 12000,
+    projectProgress: 92,
+    meetingMode: "synchrone",
+    nextMeeting: "2025-10-23",
+    facilitator: "Sophie Martin",
+    monthlyBudget: 310,
+    tags: ["Montessori", "Démocratique", "Rural"],
+    isActive: true,
+  },
+];
+
+const communityStats = {
+  totalCircles: 42,
+  totalMembers: 827,
+  monthlyFunds: 8270,
+  projectsFinanced: 156,
+  averageParticipation: 89,
+  newMembersThisMonth: 23,
+};
+
+const governanceRoles = [
+  {
+    name: "Facilitateur",
+    icon: Crown,
+    description: "Anime les réunions, veille au respect du cadre",
+    duration: "1 mois",
+    responsibilities: ["Animation", "Cadre temporel", "Bienveillance"],
+    color: "from-yellow-500 to-orange-500",
+  },
+  {
+    name: "Secrétaire",
+    icon: BookOpen,
+    description: "Rédige les comptes-rendus, archive la mémoire",
+    duration: "1 mois",
+    responsibilities: ["Documentation", "Publication", "Suivi actions"],
+    color: "from-blue-500 to-cyan-500",
+  },
+  {
+    name: "Référent Projet",
+    icon: Target,
+    description: "Coordonne le projet en cours du cercle",
+    duration: "Jusqu'à réalisation",
+    responsibilities: ["Coordination", "Suivi budget", "Reporting"],
+    color: "from-green-500 to-emerald-500",
+  },
+  {
+    name: "Gardien Éthique",
+    icon: Shield,
+    description: "Veille au respect des valeurs et de la charte",
+    duration: "1 mois",
+    responsibilities: ["Éthique", "Médiation", "Valeurs"],
+    color: "from-purple-500 to-pink-500",
+  },
+];
+
+const decisionProcess = [
+  {
+    step: 1,
+    icon: Lightbulb,
+    title: "Émergence",
+    description: "Une idée ou un besoin collectif apparaît",
+    duration: "1-2 semaines",
+    color: "from-blue-100 to-blue-50",
+  },
+  {
+    step: 2,
+    icon: Zap,
+    title: "Structuration",
+    description: "Le Cercle construit un dossier projet",
+    duration: "2-3 semaines",
+    color: "from-green-100 to-green-50",
+  },
+  {
+    step: 3,
+    icon: Vote,
+    title: "Sélection",
+    description: "Vote collectif et validation éthique",
+    duration: "1 semaine",
+    color: "from-yellow-100 to-yellow-50",
+  },
+  {
+    step: 4,
+    icon: Coins,
+    title: "Financement",
+    description: "Le projet est lancé sur la Plateforme",
+    duration: "4-6 semaines",
+    color: "from-purple-100 to-purple-50",
+  },
+  {
+    step: 5,
+    icon: BarChart3,
+    title: "Suivi & Bilan",
+    description: "Résultats publiés sur mondoBlog",
+    duration: "Continu",
+    color: "from-indigo-100 to-indigo-50",
+  },
+];
+
+export default function CirclesPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+      {/* Hero Section avec Mission */}
+      <div className="relative bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
+          <div className="text-center space-y-8">
+            {/* Badge Gouvernance */}
+            <div className="flex items-center justify-center gap-2 text-purple-200">
+              <Users className="h-6 w-6 animate-pulse" />
+              <span className="text-lg font-semibold tracking-wider">
+                GOUVERNANCE COLLECTIVE
+              </span>
+              <Users className="h-6 w-6 animate-pulse" />
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-black leading-tight">
+              The <span className="text-yellow-300">Circles</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+              L'intelligence collective au service de l'action éthique.
+              <br />
+              <span className="font-bold text-yellow-300">
+                Réfléchir ensemble, décider collectivement, agir concrètement.
+              </span>
+            </p>
+
+            {/* Stats Communauté */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto mt-12">
+              {[
+                { value: communityStats.totalCircles, label: "Cercles actifs" },
+                {
+                  value: communityStats.totalMembers,
+                  label: "Membres engagés",
+                },
+                {
+                  value: `${communityStats.monthlyFunds.toLocaleString()}€`,
+                  label: "Budget mensuel",
+                },
+              ].map((stat, index) => (
+                <div
+                  key={index}
+                  className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20"
+                >
+                  <div className="text-2xl md:text-3xl font-bold text-yellow-300 mb-1">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm opacity-90">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mission Statement */}
+            <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-8 max-w-4xl mx-auto mt-12 border border-white/10">
+              <blockquote className="text-lg italic text-center leading-relaxed">
+                "Créer une communauté où les individus réfléchissent ensemble au
+                sens de leurs actions dans la société moderne, puis agissent
+                collectivement pour bâtir un monde plus humain, éthique et
+                durable."
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Recherche et Navigation */}
+        <div className="mb-16">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <input
+                placeholder="Rechercher un cercle..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium">
+                <Plus className="h-4 w-4" />
+                Créer un Cercle
+              </button>
+              <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg">
+                <Users className="h-4 w-4" />
+                Rejoindre (10€/mois)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Processus de Décision */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span className="w-2 h-10 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-full"></span>
+            Le Processus de Décision Collective
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {decisionProcess.map((step) => (
+              <div key={step.step} className="relative">
+                {/* Connection Line */}
+                {step.step < decisionProcess.length && (
+                  <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-gray-200 to-gray-200 z-0"></div>
+                )}
+
+                <div
+                  className={`relative bg-gradient-to-br ${step.color} border border-gray-200 rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300 z-10`}
+                >
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <step.icon className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      {step.step}
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {step.description}
+                    </p>
+                    <div className="text-xs text-purple-600 font-medium bg-purple-100 px-3 py-1 rounded-full">
+                      {step.duration}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Principes de Gouvernance */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span className="w-2 h-10 bg-gradient-to-b from-green-500 to-blue-600 rounded-full"></span>
+            Rôles Tournants & Gouvernance
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {governanceRoles.map((role) => (
+              <div
+                key={role.name}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group border border-gray-100 overflow-hidden"
+              >
+                <div className={`bg-gradient-to-r ${role.color} p-6`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                      <role.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg">
+                        {role.name}
+                      </h3>
+                      <p className="text-white/80 text-sm">{role.duration}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                    {role.description}
+                  </p>
+                  <div className="space-y-2">
+                    {role.responsibilities.map((resp) => (
+                      <div
+                        key={resp}
+                        className="flex items-center gap-2 text-sm text-gray-500"
+                      >
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        {resp}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border border-purple-100">
+            <div className="flex items-start gap-4">
+              <RotateCcw className="h-6 w-6 text-purple-600 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  Principe de Rotation
+                </h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Les rôles sont tournants pour favoriser l'apprentissage
+                  collectif et éviter la concentration du pouvoir. Chaque membre
+                  peut occuper tous les rôles, développant ainsi ses compétences
+                  et sa compréhension du fonctionnement collectif.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Catégories de Cercles */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span className="w-2 h-10 bg-gradient-to-b from-orange-500 to-red-600 rounded-full"></span>
+            Thématiques des Cercles
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {circleCategories.map((category) => (
+              <div
+                key={category.id}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100 overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="text-4xl transform group-hover:scale-110 transition-transform duration-300">
+                      {category.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-purple-600 transition-colors">
+                        {category.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {category.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-blue-600" />
+                        <span>{category.activeCircles} cercles</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-green-600" />
+                        <span>{category.totalMembers} membres</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-purple-600">
+                        {category.monthlyBudget}€/mois
+                      </span>
+                      <div className="flex items-center gap-1 text-gray-500">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {new Date(category.nextMeeting).toLocaleDateString(
+                            "fr-FR",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full bg-gradient-to-r ${category.color} transition-all duration-1000 ease-out`}
+                        style={{
+                          width: `${Math.min(
+                            (category.totalMembers / 250) * 100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Cercles en Vedette */}
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold flex items-center gap-3">
+              <span className="w-2 h-10 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></span>
+              Cercles en Action
+            </h2>
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium">
+              <TrendingUp className="h-4 w-4" />
+              {communityStats.averageParticipation}% participation active
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {featuredCircles.map((circle) => (
+              <CircleCard key={circle.id} circle={circle} />
+            ))}
+          </div>
+        </section>
+
+        {/* Modes de Fonctionnement */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span className="w-2 h-10 bg-gradient-to-b from-cyan-500 to-blue-600 rounded-full"></span>
+            Deux Modes de Participation
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Mode Synchrone */}
+            <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-b border-blue-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <Video className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-gray-900">
+                      Mode Synchrone
+                    </h3>
+                    <p className="text-blue-600">
+                      Réunions visioconférence mensuelles
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {[
+                    { icon: Clock, text: "Durée: 60-90 minutes" },
+                    { icon: Calendar, text: "Fréquence: 1 fois par mois" },
+                    { icon: Users, text: "Interaction directe en temps réel" },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5 text-blue-600" />
+                      <span className="text-gray-700">{item.text}</span>
+                    </div>
+                  ))}
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                      Ordre du jour type:
+                    </h4>
+                    <ul className="text-gray-600 space-y-2">
+                      {[
+                        "Synthèse précédente",
+                        "Suivi des actions",
+                        "Exposé thématique",
+                        "Tour de parole",
+                        "Décisions budget",
+                      ].map((item, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mode Asynchrone */}
+            <div className="bg-white rounded-2xl shadow-lg border-2 border-green-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-gray-900">
+                      Mode Asynchrone
+                    </h3>
+                    <p className="text-green-600">
+                      Sprints mensuels via blog collaboratif
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {[
+                    { icon: Clock, text: "Durée: 3 semaines d'échanges" },
+                    {
+                      icon: MessageCircle,
+                      text: "Contributions écrites étoffées",
+                    },
+                    { icon: Globe, text: "Flexibilité horaire totale" },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5 text-green-600" />
+                      <span className="text-gray-700">{item.text}</span>
+                    </div>
+                  ))}
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                      Processus sprint:
+                    </h4>
+                    <ul className="text-gray-600 space-y-2">
+                      {[
+                        "Bilan précédent",
+                        "Contributions thématiques",
+                        "Échanges et débats",
+                        "Votes et décisions",
+                        "Synthèse finale",
+                      ].map((item, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Valeurs et Éthique */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span className="w-2 h-10 bg-gradient-to-b from-rose-500 to-pink-600 rounded-full"></span>
+            Nos Valeurs Fondamentales
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: Shield,
+                title: "Éthique",
+                desc: "Intégrité et transparence dans toutes nos actions",
+                color: "from-purple-500 to-pink-500",
+              },
+              {
+                icon: Heart,
+                title: "Solidarité",
+                desc: "Entraide et coopération entre membres",
+                color: "from-red-500 to-orange-500",
+              },
+              {
+                icon: TreePine,
+                title: "Durabilité",
+                desc: "Respect du vivant et vision long terme",
+                color: "from-green-500 to-emerald-500",
+              },
+              {
+                icon: Lightbulb,
+                title: "Ouverture",
+                desc: "Curiosité et apprentissage continu",
+                color: "from-blue-500 to-cyan-500",
+              },
+            ].map((value) => (
+              <div
+                key={value.title}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-center group border border-gray-100"
+              >
+                <div
+                  className={`w-16 h-16 bg-gradient-to-r ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <value.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  {value.title}
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {value.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* CTA Final */}
+      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white py-20 relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto text-center px-6">
+          <div className="space-y-6">
+            <div className="flex items-center justify-center gap-3 text-purple-200">
+              <Users className="h-8 w-8" />
+              <span className="text-xl font-bold tracking-wider">
+                REJOIGNEZ LA COMMUNAUTÉ
+              </span>
+              <Users className="h-8 w-8" />
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-black leading-tight">
+              Prêt à Changer le Monde
+              <br />
+              <span className="text-yellow-300">Ensemble ?</span>
+            </h2>
+
+            <p className="text-xl text-purple-100 max-w-2xl mx-auto leading-relaxed">
+              Rejoignez une communauté qui transforme la réflexion en action
+              concrète. 10€/mois pour participer à la gouvernance collective et
+              financer des projets éthiques.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+              <button className="flex items-center justify-center gap-2 px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl">
+                <Coins className="h-5 w-5" />
+                Adhérer - 10€/mois
+              </button>
+              <button className="flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-200 text-lg">
+                <FileText className="h-5 w-5" />
+                Lire la Charte
+              </button>
+            </div>
+
+            <div className="pt-8 text-sm text-purple-200">
+              <p className="flex items-center justify-center gap-6">
+                <span>✅ Transparence financière totale</span>
+                <span>✅ Gouvernance démocratique</span>
+                <span>✅ Impact mesurable</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Composant pour les cartes de cercles
+function CircleCard({ circle }: { circle: any }) {
+  const ProgressBar = ({ progress }: { progress: number }) => (
+    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div
+        className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-1000 ease-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+
+  return (
+    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 group relative overflow-hidden border border-gray-100">
+      {/* Badge Mode */}
+      <div className="absolute top-4 right-4 z-10">
+        <div
+          className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+            circle.meetingMode === "synchrone"
+              ? "bg-blue-500 text-white"
+              : "bg-green-500 text-white"
+          }`}
+        >
+          {circle.meetingMode === "synchrone" ? (
+            <>
+              <Video className="h-3 w-3" />
+              Synchrone
+            </>
+          ) : (
+            <>
+              <FileText className="h-3 w-3" />
+              Asynchrone
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="p-6">
+        <div className="space-y-4">
+          {/* Header */}
+          <div>
+            <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+              {circle.name}
+            </h3>
+            <div className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium mb-2">
+              {circle.category}
+            </div>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              {circle.description}
+            </p>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-blue-600" />
+              <span>{circle.members} membres</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Coins className="h-4 w-4 text-green-600" />
+              <span>{circle.monthlyBudget}€/mois</span>
+            </div>
+          </div>
+
+          {/* Projet Actuel */}
+          <div className="p-4 bg-gray-50 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-sm text-gray-900">
+                Projet actuel
+              </span>
+              <span className="text-xs text-purple-600 font-medium">
+                {circle.projectProgress}% financé
+              </span>
+            </div>
+            <h4 className="font-medium text-sm text-gray-900">
+              {circle.currentProject}
+            </h4>
+            <ProgressBar progress={circle.projectProgress} />
+            <div className="text-xs text-gray-500">
+              Budget: {circle.projectBudget.toLocaleString()}€
+            </div>
+          </div>
+
+          {/* Prochaine Action */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-purple-600" />
+              <span className="text-gray-700">
+                {circle.meetingMode === "synchrone"
+                  ? `Réunion: ${new Date(circle.nextMeeting).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        day: "numeric",
+                        month: "short",
+                      }
+                    )}`
+                  : `Sprint: ${new Date(circle.nextSprint).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        day: "numeric",
+                        month: "short",
+                      }
+                    )}`}
+              </span>
+            </div>
+          </div>
+
+          {/* Facilitateur */}
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <User className="h-4 w-4" />
+            <span>Facilité par {circle.facilitator}</span>
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1">
+            {circle.tags.map((tag: string) => (
+              <span
+                key={tag}
+                className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 font-medium group/btn">
+            Découvrir ce Cercle
+            <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform duration-200" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//@/app/comment-ca-marche/page.tsx
+/*
+Page "Notre Mission"
+Notre raison d'être
+*/
+
+"use client";
+
+import Link from "next/link";
+import {
+  ArrowRight,
+  Sparkles,
+  Users,
+  Target,
+  TrendingUp,
+  BookOpen,
+  Zap,
+  RotateCcw,
+  CheckCircle,
+  Play,
+  DollarSign,
+  MessageCircle,
+  Heart,
+  Globe,
+  Shield,
+  Lightbulb,
+  BarChart3,
+  Eye,
+  Coins,
+  TreePine,
+  Brain,
+  Rocket,
+  Star,
+  Award,
+  TargetIcon,
+} from "lucide-react";
+
+export default function MissionPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Hero Section */}
+      <section className="relative pt-28 pb-20 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-300/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-300/15 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
+          <div className="space-y-12">
+            {/* Mission Badge */}
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full border border-indigo-200/50 shadow-lg">
+              <Target className="w-5 h-5 text-indigo-600" />
+              <span className="text-sm font-semibold text-indigo-800 tracking-wide">
+                NOTRE RAISON D'ÊTRE
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight">
+                Notre
+                <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Mission
+                </span>
+              </h1>
+
+              <div className="max-w-4xl mx-auto space-y-6">
+                <p className="text-xl md:text-2xl text-gray-700 leading-relaxed font-light">
+                  Nous croyons que la transition sociale et écologique ne se
+                  fera pas seulement par les institutions, mais par{" "}
+                  <span className="font-semibold text-indigo-600">
+                    l'intelligence collective des citoyens
+                  </span>
+                  .
+                </p>
+
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-indigo-100">
+                  <p className="text-lg md:text-xl text-gray-800 italic leading-relaxed">
+                    "Notre mission est de réunir réflexion, action et
+                    financement dans un même espace numérique, transparent et
+                    participatif."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Vision Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Vision Content */}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  Notre <span className="text-purple-600">Vision</span>
+                </h2>
+                <p className="text-xl text-gray-700 leading-relaxed mb-8">
+                  Un monde où chaque citoyen peut passer du rôle de spectateur à
+                  celui d'acteur du changement.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {[
+                  {
+                    icon: Lightbulb,
+                    title: "Idées → Projets",
+                    description:
+                      "Transformer l'inspiration en actions concrètes",
+                  },
+                  {
+                    icon: Users,
+                    title: "Décisions Partagées",
+                    description: "Une gouvernance collective et transparente",
+                  },
+                  {
+                    icon: BarChart3,
+                    title: "Impact Mesuré",
+                    description:
+                      "Des résultats suivis et partagés pour inspirer",
+                  },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900 mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-600">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Vision Graphic */}
+            <div className="relative">
+              <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-8 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 left-4 w-20 h-20 border-2 border-white rounded-full"></div>
+                  <div className="absolute bottom-4 right-4 w-32 h-32 border-2 border-white rounded-full"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white rounded-full"></div>
+                </div>
+
+                <div className="relative z-10 text-center space-y-6">
+                  <Globe className="w-16 h-16 mx-auto text-white/80" />
+                  <h3 className="text-2xl font-bold">Écosystème Vivant</h3>
+                  <p className="text-purple-100 leading-relaxed">
+                    Impact Rush a été conçu comme un écosystème vivant où chaque
+                    composant nourrit les autres, créant un cycle vertueux
+                    d'innovation sociale.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Nos Engagements */}
+      <section className="py-20 px-6 bg-gradient-to-r from-gray-900 to-indigo-900 text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Nos <span className="text-yellow-300">Engagements</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Des principes fondamentaux qui guident chacune de nos actions
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Zap,
+                title: "Innovation Responsable",
+                description: "Technologie au service du bien commun",
+                color: "from-blue-500 to-cyan-500",
+              },
+              {
+                icon: Eye,
+                title: "Transparence Totale",
+                description: "Décisions et finances ouvertes à tous",
+                color: "from-green-500 to-emerald-500",
+              },
+              {
+                icon: TreePine,
+                title: "Durabilité",
+                description:
+                  "Priorité aux projets à impact environnemental et social",
+                color: "from-emerald-500 to-green-500",
+              },
+              {
+                icon: Users,
+                title: "Communauté Ouverte",
+                description: "Diversité des profils et des compétences",
+                color: "from-purple-500 to-pink-500",
+              },
+              {
+                icon: BarChart3,
+                title: "Mesure d'Impact",
+                description: "Indicateurs clairs et accessibles",
+                color: "from-orange-500 to-red-500",
+              },
+              {
+                icon: Shield,
+                title: "Éthique en Action",
+                description: "Des valeurs qui guident nos décisions",
+                color: "from-indigo-500 to-blue-500",
+              },
+            ].map((commitment, index) => (
+              <div key={index} className="group">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 h-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105">
+                  <div
+                    className={`w-14 h-14 bg-gradient-to-r ${commitment.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <commitment.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-white">
+                    {commitment.title}
+                  </h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    {commitment.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Notre Promesse */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Notre <span className="text-indigo-600">Promesse</span>
+            </h2>
+          </div>
+
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-12 text-white text-center relative overflow-hidden">
+            {/* Background Elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            </div>
+
+            <div className="relative z-10 space-y-6">
+              <Award className="w-16 h-16 mx-auto text-yellow-300" />
+              <h3 className="text-3xl md:text-4xl font-bold max-w-2xl mx-auto leading-tight">
+                Offrir à chacun les outils pour penser collectivement, agir
+                concrètement et mesurer l'impact réel de ses actions.
+              </h3>
+
+              <div className="grid md:grid-cols-3 gap-8 mt-12">
+                {[
+                  {
+                    icon: Brain,
+                    title: "Penser Collectivement",
+                    description: "Espaces de réflexion partagée",
+                  },
+                  {
+                    icon: Rocket,
+                    title: "Agir Concrètement",
+                    description: "Passage à l'action facilité",
+                  },
+                  {
+                    icon: TargetIcon,
+                    title: "Mesurer l'Impact",
+                    description: "Résultats tangibles et visibles",
+                  },
+                ].map((item, index) => (
+                  <div key={index} className="text-center">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="font-bold text-lg mb-2">{item.title}</h4>
+                    <p className="text-indigo-100 text-sm">
+                      {item.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Slogan */}
+          <div className="text-center mt-12">
+            <div className="inline-flex items-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <Sparkles className="w-6 h-6 text-purple-600" />
+              <span className="text-xl font-bold text-gray-900">
+                Impact Rush : la technologie au service de l'action collective.
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* L'Écosystème en Action */}
+      <section className="py-20 px-6 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              L'Écosystème en <span className="text-green-600">Action</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comment nos trois piliers interconnectés créent un impact maximal
+            </p>
+          </div>
+
+          {/* Flow Diagram */}
+          <div className="relative">
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+              {/* The Blog */}
+              <div className="flex-1 text-center group">
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center text-4xl shadow-2xl mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    📝
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    1
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Inspirez-vous
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Explorez nos 8 rubriques thématiques pour nourrir votre
+                  réflexion et découvrir de nouvelles perspectives
+                </p>
+                <div className="bg-blue-50 rounded-2xl p-4 text-sm text-blue-800 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="w-5 h-5" />
+                    <span className="font-semibold">Architecture Unique</span>
+                  </div>
+                  <ul className="text-left space-y-2">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      Tags transversaux connectés
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      Maximum 2 clics vers le contenu
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      Vision holistique du monde
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <ArrowRight className="w-8 h-8 text-indigo-400 hidden lg:block transform rotate-0 lg:rotate-0" />
+
+              {/* Impact Sprint */}
+              <div className="flex-1 text-center group">
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl flex items-center justify-center text-4xl shadow-2xl mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    🚀
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    2
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Financez l'Impact
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Utilisez Impact Sprint : pariez sur plusieurs projets
+                  simultanément, le premier à atteindre son objectif remporte
+                  tout
+                </p>
+                <div className="bg-green-50 rounded-2xl p-4 text-sm text-green-800 border border-green-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Zap className="w-5 h-5" />
+                    <span className="font-semibold">
+                      Révolution du Crowdfunding
+                    </span>
+                  </div>
+                  <ul className="text-left space-y-2">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      Risque limité, impact maximisé
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      100 projets dans 6 catégories
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      Course en temps réel
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <ArrowRight className="w-8 h-8 text-indigo-400 hidden lg:block transform rotate-0 lg:rotate-0" />
+
+              {/* The Circles */}
+              <div className="flex-1 text-center group">
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-pink-600 rounded-3xl flex items-center justify-center text-4xl shadow-2xl mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    ⭕
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    3
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Gouvernez Ensemble
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Rejoignez des cercles thématiques pour participer aux
+                  décisions et organiser collectivement l'action
+                </p>
+                <div className="bg-orange-50 rounded-2xl p-4 text-sm text-orange-800 border border-orange-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <RotateCcw className="w-5 h-5" />
+                    <span className="font-semibold">
+                      Démocratie Participative
+                    </span>
+                  </div>
+                  <ul className="text-left space-y-2">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                      Rôles tournants transparents
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                      10€/mois pour agir concrètement
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                      Décisions par consentement
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-12 shadow-2xl relative overflow-hidden">
+            {/* Background Elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            </div>
+
+            <div className="relative z-10 space-y-8">
+              <h2 className="text-4xl md:text-5xl font-bold text-white">
+                Prêt à Rejoindre la{" "}
+                <span className="text-yellow-300">Mission</span> ?
+              </h2>
+              <p className="text-xl text-indigo-100 max-w-2xl mx-auto leading-relaxed">
+                Commencez par explorer nos contenus, puis passez à l'action avec
+                Impact Sprint et la gouvernance collaborative
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/blog"
+                  className="bg-white text-indigo-600 font-bold px-8 py-4 rounded-full text-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 group"
+                >
+                  <BookOpen className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Commencer par le Blog
+                </Link>
+                <Link
+                  href="/projects"
+                  className="bg-green-500 hover:bg-green-400 text-white font-bold px-8 py-4 rounded-full text-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 group"
+                >
+                  <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Lancer un Impact Sprint
+                </Link>
+                <Link
+                  href="/cercles"
+                  className="border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-full text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-3 group"
+                >
+                  <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Rejoindre un Cercle
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-indigo-200">
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  100% transparent
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  Gouvernance éthique
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-300" />
+                  Impact mesurable
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+/////////////////////////////////////////////////////////////////////////////////
+
+
+//@/app/blog/page.tsx
+
+/*
+📰 Page de présentation – mondoBlog
+mondoBlog : la mémoire vivante de la communauté
+*/
+
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import {
+  BookOpen,
+  Users,
+  Target,
+  TrendingUp,
+  Search,
+  Tag,
+  ArrowRight,
+  Lightbulb,
+  Heart,
+  Globe,
+  Eye,
+  Share2,
+  Clock,
+  Filter,
+  Star,
+  CheckCircle,
+  MessageCircle,
+  PenTool,
+  FileText,
+  Navigation,
+  Link as LinkIcon,
+  Layers,
+  Hash,
+  Lock,
+  Unlock,
+  Sparkles,
+  Award,
+  Zap,
+  BarChart3,
+  Users2,
+  Brain,
+  Coins,
+  Calendar,
+  ThumbsUp,
+  Crown,
+} from "lucide-react";
+
+// Données basées sur votre architecture blog détaillée
+const rubriques = [
+  {
+    id: "lifestyle",
+    nom: "Lifestyle & Bien-être",
+    icon: "🌿",
+    description: "Vie quotidienne, équilibre et plaisir de vivre",
+    categories: [
+      "Santé naturelle & nutrition",
+      "Beauté & soins",
+      "Maison & décoration",
+      "Mode & style de vie",
+      "Cuisine & recettes",
+      "Famille & parentalité",
+      "Loisirs & hobbies",
+      "Minimalisme & routines",
+    ],
+    exemplesArticles: [
+      "Mes 5 recettes healthy pour la semaine",
+      "Comment organiser sa kitchenette en ville",
+      "Batch cooking : mon planning du dimanche",
+    ],
+    color: "from-green-500 to-emerald-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    stats: { articles: 156, followers: 2340, engagement: 89 },
+  },
+  {
+    id: "technologie",
+    nom: "Technologie & Innovation",
+    icon: "💻",
+    description: "Progrès, outils numériques et transformation du monde",
+    categories: [
+      "Intelligence artificielle",
+      "Startups & entrepreneuriat tech",
+      "Cybersécurité",
+      "Web 3.0 & blockchain",
+      "Applications & outils digitaux",
+      "Robotique & automatisation",
+      "Tech verte & durable",
+      "Culture numérique",
+    ],
+    exemplesArticles: [
+      "ChatGPT : comment je l'utilise pour booster ma productivité",
+      "Les IA génératives vont-elles remplacer les créatifs ?",
+      "Midjourney : guide pour débutants",
+    ],
+    color: "from-blue-500 to-cyan-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    stats: { articles: 203, followers: 3120, engagement: 92 },
+  },
+  {
+    id: "spiritualite",
+    nom: "Spiritualité & Conscience",
+    icon: "🕊️",
+    description: "Développement de l'âme, réflexion et éveil intérieur",
+    categories: [
+      "Méditation & pleine conscience",
+      "Philosophie & sagesse",
+      "Énergies & chakras",
+      "Rituels & pratiques spirituelles",
+      "Symbolisme & intuition",
+      "Science et spiritualité",
+      "Cheminement personnel",
+      "Spiritualité appliquée",
+    ],
+    exemplesArticles: [
+      "Méditation matinale : ma routine en 10 minutes",
+      "5 techniques pour méditer quand on est hyperactif",
+      "Méditation en nature : reconnectez-vous",
+    ],
+    color: "from-purple-500 to-violet-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
+    stats: { articles: 98, followers: 1870, engagement: 95 },
+  },
+  {
+    id: "developpement",
+    nom: "Développement Personnel",
+    icon: "🧠",
+    description: "Croissance intérieure, productivité et équilibre",
+    categories: [
+      "Confiance & estime de soi",
+      "Motivation & discipline",
+      "Gestion du stress & santé mentale",
+      "Productivité & organisation",
+      "Relations humaines",
+      "Finances personnelles",
+      "Mindset & objectifs",
+      "Épanouissement global",
+    ],
+    exemplesArticles: [
+      "La méthode Pomodoro appliquée au travail créatif",
+      "Comment dire non sans culpabiliser",
+      "Gérer son énergie, pas son temps",
+    ],
+    color: "from-orange-500 to-amber-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
+    stats: { articles: 178, followers: 2890, engagement: 91 },
+  },
+  {
+    id: "societe",
+    nom: "Société & Culture",
+    icon: "🌍",
+    description: "Comprendre le monde, ses mutations et sa diversité",
+    categories: [
+      "Actualités & débats",
+      "Éducation & jeunesse",
+      "Politique & citoyenneté",
+      "Économie & société",
+      "Médias & communication",
+      "Philosophie & idées",
+      "Inclusion & diversité",
+      "Tendances sociales & culture populaire",
+    ],
+    exemplesArticles: [
+      "L'impact des réseaux sociaux sur notre perception du monde",
+      "Génération Z : nouveaux codes, nouvelles attentes",
+      "Le futur du travail en 2030",
+    ],
+    color: "from-indigo-500 to-blue-600",
+    bgColor: "bg-indigo-50",
+    borderColor: "border-indigo-200",
+    stats: { articles: 145, followers: 2670, engagement: 87 },
+  },
+  {
+    id: "carriere",
+    nom: "Entrepreneuriat & Carrière",
+    icon: "💼",
+    description: "Monde professionnel, business et indépendance",
+    categories: [
+      "Création d'entreprise",
+      "Freelancing & autonomie",
+      "Marketing & communication",
+      "Stratégie & innovation",
+      "Leadership & management",
+      "Finances & investissement",
+      "Productivité professionnelle",
+      "Études de cas & témoignages",
+    ],
+    exemplesArticles: [
+      "Mon parcours pour créer mon entreprise à 25 ans",
+      "Les 10 erreurs à éviter en freelance",
+      "Comment pitcher son projet en 3 minutes",
+    ],
+    color: "from-emerald-500 to-green-600",
+    bgColor: "bg-emerald-50",
+    borderColor: "border-emerald-200",
+    stats: { articles: 134, followers: 2450, engagement: 88 },
+  },
+  {
+    id: "sciences",
+    nom: "Sciences & Environnement",
+    icon: "🧬",
+    description: "Savoirs, écologie et avenir durable",
+    categories: [
+      "Écologie & climat",
+      "Énergies renouvelables",
+      "Biodiversité",
+      "Sciences naturelles & recherche",
+      "Psychologie & neurosciences",
+      "Vulgarisation scientifique",
+      "Science & éthique",
+      "Innovations durables",
+    ],
+    exemplesArticles: [
+      "Les dernières découvertes sur le cerveau humain",
+      "Transition énergétique : où en est-on ?",
+      "Comment réduire son empreinte carbone au quotidien",
+    ],
+    color: "from-teal-500 to-cyan-600",
+    bgColor: "bg-teal-50",
+    borderColor: "border-teal-200",
+    stats: { articles: 112, followers: 1980, engagement: 90 },
+  },
+  {
+    id: "art",
+    nom: "Art, Voyage & Création",
+    icon: "🎨",
+    description: "Expression, exploration et inspiration",
+    categories: [
+      "Art & créativité",
+      "Design & photographie",
+      "Littérature & cinéma",
+      "Histoire & civilisations",
+      "Voyage & découvertes",
+      "Culture du monde",
+      "Inspirations d'artistes",
+      "Séries & documentaires",
+    ],
+    exemplesArticles: [
+      "Les coulisses de ma dernière exposition",
+      "Voyager seul : mes meilleures astuces",
+      "Comment développer sa créativité au quotidien",
+    ],
+    color: "from-pink-500 to-rose-600",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
+    stats: { articles: 167, followers: 2780, engagement: 86 },
+  },
+];
+
+const tagsTransversaux = {
+  objectif: [
+    { tag: "#Débutant", count: 234 },
+    { tag: "#GuidePratique", count: 189 },
+    { tag: "#Inspiration", count: 312 },
+    { tag: "#Transformation", count: 156 },
+    { tag: "#Challenge30Jours", count: 78 },
+  ],
+  public: [
+    { tag: "#Étudiants", count: 145 },
+    { tag: "#Entrepreneurs", count: 267 },
+    { tag: "#Créatifs", count: 198 },
+    { tag: "#Famille", count: 123 },
+    { tag: "#Professionnels", count: 289 },
+  ],
+  theme: [
+    { tag: "#Minimalisme", count: 167 },
+    { tag: "#Mindfulness", count: 234 },
+    { tag: "#Innovation", count: 278 },
+    { tag: "#BienÊtre", count: 312 },
+    { tag: "#Productivité", count: 245 },
+  ],
+  effort: [
+    { tag: "#5Minutes", count: 89 },
+    { tag: "#ProjetWeekend", count: 67 },
+    { tag: "#RoutineQuotidienne", count: 178 },
+    { tag: "#ObjectifAnnuel", count: 56 },
+  ],
+};
+
+const exemplesLiensTransversaux = [
+  {
+    tag: "#Minimalisme",
+    articles: [
+      {
+        rubrique: "Lifestyle",
+        titre: "Capsule wardrobe : 30 pièces pour 3 mois",
+        likes: 234,
+        reads: 1567,
+      },
+      {
+        rubrique: "Technologie",
+        titre: "5 apps pour désencombrer sa vie digitale",
+        likes: 189,
+        reads: 1234,
+      },
+      {
+        rubrique: "Spiritualité",
+        titre: "Minimalisme mental : l'art du lâcher-prise",
+        likes: 312,
+        reads: 1987,
+      },
+      {
+        rubrique: "Développement Perso",
+        titre: "Budget minimaliste : vivre mieux avec moins",
+        likes: 267,
+        reads: 1678,
+      },
+    ],
+  },
+  {
+    tag: "#RoutineMatin",
+    articles: [
+      {
+        rubrique: "Lifestyle",
+        titre: "Ma routine beauté du matin",
+        likes: 156,
+        reads: 987,
+      },
+      {
+        rubrique: "Développement Perso",
+        titre: "3 habitudes pour booster sa journée",
+        likes: 278,
+        reads: 1456,
+      },
+      {
+        rubrique: "Spiritualité",
+        titre: "Méditation & journaling au réveil",
+        likes: 345,
+        reads: 1789,
+      },
+      {
+        rubrique: "Technologie",
+        titre: "Les apps qui optimisent mes matinées",
+        likes: 198,
+        reads: 1123,
+      },
+    ],
+  },
+];
+
+const avantagesArchitecture = [
+  {
+    titre: "UX Fluide",
+    description: "Maximum 2 clics pour atteindre un article",
+    icon: Navigation,
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
+  },
+  {
+    titre: "SEO Fort",
+    description: "Structure plate, siloing thématique clair",
+    icon: TrendingUp,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+  },
+  {
+    titre: "Éditorial Cohérent",
+    description: "Rubriques distinctes mais connectées",
+    icon: Layers,
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
+  },
+  {
+    titre: "Scalable",
+    description: "Évolution facile sans casser la structure",
+    icon: Target,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+  },
+];
+
+const systemeXP = [
+  {
+    niveau: "Sprinter Débutant",
+    xp: "0-1,000",
+    avantages: [
+      "Accès aux articles publics",
+      "Commentaires basiques",
+      "Profil personnalisé",
+    ],
+    icon: Zap,
+    color: "from-blue-400 to-cyan-500",
+  },
+  {
+    niveau: "Eco-Rusher",
+    xp: "1,001-5,000",
+    avantages: [
+      "Publication d'articles",
+      "Accès aux cercles",
+      "Badges exclusifs",
+    ],
+    icon: Users2,
+    color: "from-green-400 to-emerald-500",
+  },
+  {
+    niveau: "Impact Leader",
+    xp: "5,001-15,000",
+    avantages: ["Modération des contenus", "Mentorat", "Accès early features"],
+    icon: Crown,
+    color: "from-purple-400 to-violet-500",
+  },
+  {
+    niveau: "Legend of Impact",
+    xp: "15,001+",
+    avantages: [
+      "Gouvernance plateforme",
+      "Événements privés",
+      "Statut ambassadeur",
+    ],
+    icon: Award,
+    color: "from-yellow-400 to-orange-500",
+  },
+];
+
+export default function BlogAboutPage() {
+  const [activeTab, setActiveTab] = useState("presentation");
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-slate-900 via-purple-900 to-blue-900 text-white overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center space-y-8">
+            <div className="flex items-center justify-center gap-2 text-blue-200">
+              <BookOpen className="h-6 w-6" />
+              <span className="text-lg font-semibold tracking-wider">
+                À PROPOS DU BLOG
+              </span>
+              <BookOpen className="h-6 w-6" />
+            </div>
+
+            <h1 className="text-5xl md:text-6xl font-black leading-tight">
+              mondo<span className="text-yellow-300">Blog</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+              La mémoire vivante de la communauté Impact Rush
+              <br />
+              <span className="font-bold text-yellow-300">
+                8 rubriques • Structure plate • Tags transversaux • Navigation
+                optimisée
+              </span>
+            </p>
+
+            <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-8 max-w-3xl mx-auto border border-white/10">
+              <blockquote className="text-lg italic text-center leading-relaxed">
+                "Explorez nos réflexions sur la technologie, le développement
+                personnel, la spiritualité et les enjeux de société. Une source
+                d'inspiration pour nourrir vos projets et élargir votre vision
+                du monde."
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Navigation Tabs */}
+        <div className="flex overflow-x-auto pb-4 mb-8 scrollbar-hide">
+          <div className="flex space-x-1 bg-gray-100 rounded-2xl p-1">
+            {[
+              { id: "presentation", label: "Notre Approche", icon: Lightbulb },
+              { id: "rubriques", label: "8 Rubriques", icon: Layers },
+              { id: "navigation", label: "Système de Tags", icon: Hash },
+              { id: "communauté", label: "Communauté", icon: Users },
+              { id: "avantages", label: "Avantages", icon: Star },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? "bg-white text-gray-900 shadow-lg"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Présentation */}
+        {activeTab === "presentation" && (
+          <div className="space-y-12">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-8 border-b border-blue-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                    <Lightbulb className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Notre Philosophie Éditoriale
+                    </h2>
+                    <p className="text-lg text-gray-600 mt-2">
+                      Une approche moderne du blogging généraliste
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 space-y-8">
+                {/* Mission */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Notre Mission
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        {
+                          title: "Inspiration quotidienne",
+                          description:
+                            "Articles pratiques pour améliorer votre quotidien",
+                        },
+                        {
+                          title: "Réflexions approfondies",
+                          description:
+                            "Analyses sur les enjeux de société et l'évolution du monde",
+                        },
+                        {
+                          title: "Guides pratiques",
+                          description:
+                            "Conseils actionnables pour votre développement personnel",
+                        },
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {item.title}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
+                    <h4 className="font-bold text-xl mb-4 text-orange-900">
+                      Architecture Unique
+                    </h4>
+                    <div className="space-y-4 text-sm">
+                      {[
+                        {
+                          text: "Structure plate : Maximum 2 clics pour atteindre un article",
+                          highlight: true,
+                        },
+                        {
+                          text: "8 rubriques équilibrées : Vision globale du monde",
+                        },
+                        {
+                          text: "Tags transversaux : Connexions entre les thématiques",
+                        },
+                        { text: "SEO optimisé : Siloing thématique clair" },
+                      ].map((item, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              item.highlight ? "bg-orange-500" : "bg-orange-300"
+                            }`}
+                          ></div>
+                          <span
+                            className={
+                              item.highlight
+                                ? "font-semibold text-orange-700"
+                                : "text-orange-600"
+                            }
+                          >
+                            {item.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Deux Espaces */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Espace Public */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Unlock className="w-6 h-6 text-green-600" />
+                      <h3 className="text-xl font-bold text-green-900">
+                        Espace Public
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        "Articles et tribunes des membres",
+                        "Portraits de projets réussis",
+                        "Bilan d'impact et transparence financière",
+                        "Inspirations et bonnes pratiques",
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-sm text-green-700"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Espace Privé */}
+                  <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Lock className="w-6 h-6 text-purple-600" />
+                      <h3 className="text-xl font-bold text-purple-900">
+                        Espace Privé
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        "Comptes-rendus de réunions",
+                        "Discussions collaboratives",
+                        "Suivi des projets en cours",
+                        "Rédaction d'essais collectifs",
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-sm text-purple-700"
+                        >
+                          <CheckCircle className="w-4 h-4 text-purple-500" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Les 8 Rubriques */}
+        {activeTab === "rubriques" && (
+          <div className="space-y-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Nos 8 Rubriques Principales
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Une vision globale équilibrée : corps, esprit, société, futur
+              </p>
+            </div>
+
+            <div className="grid gap-8">
+              {rubriques.map((rubrique, index) => (
+                <div
+                  key={index}
+                  className={`${rubrique.bgColor} rounded-3xl border-2 ${rubrique.borderColor} p-8 hover:shadow-2xl transition-all duration-300`}
+                >
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="text-5xl">{rubrique.icon}</div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900">
+                            {rubrique.nom}
+                          </h3>
+                          <p className="text-gray-600 mt-1">
+                            {rubrique.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="text-center">
+                          <div className="font-bold text-gray-900">
+                            {rubrique.stats.articles}
+                          </div>
+                          <div className="text-gray-500">Articles</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-gray-900">
+                            {rubrique.stats.followers}
+                          </div>
+                          <div className="text-gray-500">Abonnés</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Catégories */}
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">
+                        Catégories :
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {rubrique.categories.map((cat, catIndex) => (
+                          <span
+                            key={catIndex}
+                            className="px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300"
+                          >
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Exemples d'articles */}
+                    {rubrique.exemplesArticles.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          Articles populaires :
+                        </h4>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          {rubrique.exemplesArticles.map(
+                            (article, artIndex) => (
+                              <div
+                                key={artIndex}
+                                className="bg-white rounded-xl p-4 border border-gray-200"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <PenTool className="w-4 h-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-600">
+                                    Exemple
+                                  </span>
+                                </div>
+                                <p className="text-gray-800 font-medium">
+                                  "{article}"
+                                </p>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CTA */}
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <ThumbsUp className="w-4 h-4" />
+                        <span>{rubrique.stats.engagement}% d'engagement</span>
+                      </div>
+                      <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200">
+                        Explorer
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Système de Navigation */}
+        {activeTab === "navigation" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                  <Hash className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Système de Tags Transversaux
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    Navigation intelligente et exploration enrichie
+                  </p>
+                </div>
+              </div>
+
+              {/* Tags Transversaux */}
+              <div className="space-y-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {Object.entries(tagsTransversaux).map(([type, tags]) => (
+                    <div
+                      key={type}
+                      className="bg-gray-50 rounded-2xl p-6 border border-gray-200"
+                    >
+                      <h4 className="font-bold text-lg mb-4 capitalize flex items-center gap-2 text-gray-900">
+                        <Hash className="h-5 w-5 text-gray-600" />
+                        Par {type}
+                      </h4>
+                      <div className="space-y-2">
+                        {tags.map((tagObj) => (
+                          <div
+                            key={tagObj.tag}
+                            className="flex justify-between items-center p-2 bg-white rounded-lg border border-gray-200"
+                          >
+                            <span className="font-medium text-gray-700">
+                              {tagObj.tag}
+                            </span>
+                            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {tagObj.count}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Exemples de Liens Croisés */}
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Exemples de Liens Croisés
+                  </h3>
+                  {exemplesLiensTransversaux.map((exemple, index) => (
+                    <div
+                      key={index}
+                      className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-200"
+                    >
+                      <h4 className="font-bold text-xl mb-4 flex items-center gap-3">
+                        <Tag className="h-6 w-6 text-indigo-600" />
+                        {exemple.tag}
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {exemple.articles.map((article, artIndex) => (
+                          <div
+                            key={artIndex}
+                            className="bg-white rounded-xl p-4 border border-indigo-100 hover:shadow-lg transition-shadow duration-200"
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="font-semibold text-sm text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">
+                                {article.rubrique}
+                              </span>
+                              <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <ThumbsUp className="w-3 h-3" />
+                                {article.likes}
+                              </div>
+                            </div>
+                            <p className="font-medium text-gray-800 mb-2">
+                              {article.titre}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />
+                                {article.reads} lectures
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Communauté */}
+        {activeTab === "communauté" && (
+          <div className="space-y-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Système d'Impact XP
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Progressez, contribuez et soyez récompensé pour votre engagement
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {systemeXP.map((niveau, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+                >
+                  <div
+                    className={`bg-gradient-to-r ${niveau.color} p-6 text-white`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <niveau.icon className="w-8 h-8" />
+                      <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-full">
+                        {niveau.xp} XP
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold">{niveau.niveau}</h3>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                      Avantages :
+                    </h4>
+                    <ul className="space-y-2">
+                      {niveau.avantages.map((avantage, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-center gap-2 text-sm text-gray-600"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          {avantage}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions qui rapportent des XP */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                Comment gagner des XP ?
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { action: "Lire un article", xp: "10 XP", icon: BookOpen },
+                  { action: "Commenter", xp: "25 XP", icon: MessageCircle },
+                  { action: "Partager", xp: "30 XP", icon: Share2 },
+                  { action: "Écrire un article", xp: "100 XP", icon: PenTool },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="text-center p-4 bg-white rounded-xl border border-gray-200"
+                  >
+                    <item.icon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                    <div className="font-semibold text-gray-900">
+                      {item.action}
+                    </div>
+                    <div className="text-sm text-purple-600 font-medium">
+                      {item.xp}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Avantages */}
+        {activeTab === "avantages" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Pourquoi Cette Architecture Fonctionne
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    UX optimisée, SEO performant, évolutivité garantie
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                {avantagesArchitecture.map((avantage, index) => (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200"
+                  >
+                    <div
+                      className={`w-12 h-12 ${avantage.bgColor} rounded-xl flex items-center justify-center mb-4`}
+                    >
+                      <avantage.icon className={`w-6 h-6 ${avantage.color}`} />
+                    </div>
+                    <h3 className="font-bold text-xl mb-2 text-gray-900">
+                      {avantage.titre}
+                    </h3>
+                    <p className="text-gray-600">{avantage.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommandations */}
+              <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-200">
+                <h3 className="font-bold text-2xl mb-6 text-green-900">
+                  Recommandations de Mise en Œuvre
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {[
+                    "Commencer simple : 3-4 catégories principales au début",
+                    "Ajouter les sous-catégories seulement avec 8-10 articles sur un sous-thème",
+                    "Utiliser les tags avec stratégie : maximum 3-5 tags par article",
+                    "Créer des pages de landing pour les tags et séries populaires",
+                    "Utiliser des breadcrumbs : Accueil - Technologie - IA & Futur - Article",
+                    "Analyser régulièrement les données d'engagement pour ajuster",
+                  ].map((reco, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-green-800">{reco}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CTA Final */}
+      <div className="bg-gradient-to-r from-slate-900 to-blue-900 text-white py-20">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <div className="space-y-8">
+            <h2 className="text-4xl md:text-5xl font-black">
+              Prêt à Explorer Notre{" "}
+              <span className="text-yellow-300">Univers</span> ?
+            </h2>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+              8 rubriques, des centaines d'articles, des milliers de connexions.
+              Commencez votre exploration dès maintenant.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200 hover:scale-105 shadow-lg">
+                <BookOpen className="w-5 h-5" />
+                Découvrir les Articles
+              </button>
+              <button className="flex items-center justify-center gap-3 border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200">
+                <MessageCircle className="w-5 h-5" />
+                S'abonner à la Newsletter
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-blue-200">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Contenu frais quotidien
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Communauté bienveillante
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Système de récompenses
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+//////////////////////////////////////////////////////////////////////////////////////
+//@/app/projects/page.tsx
+
+
+/*
+💸 Page de présentation – The Plateforme
+The Plateforme : le moteur de financement participatif d'impact
+*/
+
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import {
+  Zap,
+  Target,
+  Users,
+  CreditCard,
+  Trophy,
+  ArrowRight,
+  Play,
+  CheckCircle,
+  User,
+  Lightbulb,
+  DollarSign,
+  Timer,
+  Flame,
+  AlertTriangle,
+  Heart,
+  TrendingUp,
+  Gift,
+  PlusCircle,
+  FileText,
+  Award,
+  Shield,
+  Eye,
+  Share2,
+  Clock,
+  MapPin,
+  Coins,
+  BarChart3,
+  Rocket,
+  Sparkles,
+  Crown,
+  Star,
+  Wallet,
+  BadgeCheck,
+  Lock,
+  Unlock,
+} from "lucide-react";
+
+const etapesInvestisseur = [
+  {
+    numero: 1,
+    titre: "Je dépose ma mise",
+    description: "Je place 100€ sur Impact Sprint",
+    details:
+      "Un montant unique que je peux engager sur plusieurs projets simultanément",
+    icon: CreditCard,
+    color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-blue-50",
+    duration: "2 minutes",
+  },
+  {
+    numero: 2,
+    titre: "Je sélectionne mes projets",
+    description: "Je choisis 2, 5, 10 projets ou plus !",
+    details:
+      "Mes 100€ sont virtuellement engagés sur chacun d'eux. Plus j'en choisis, plus j'ai de chances qu'un projet gagne.",
+    icon: Target,
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-50",
+    duration: "5 minutes",
+  },
+  {
+    numero: 3,
+    titre: "Je suis la course",
+    description: "Je regarde mes projets progresser",
+    details:
+      "Tableaux de bord en temps réel, notifications, engagement communautaire",
+    icon: TrendingUp,
+    color: "from-purple-500 to-violet-500",
+    bgColor: "bg-purple-50",
+    duration: "En continu",
+  },
+  {
+    numero: 4,
+    titre: "Un projet gagne !",
+    description: "Le premier à 100% remporte tout",
+    details:
+      "Mes 100€ sont prélevés UNIQUEMENT pour ce projet gagnant. Mes autres engagements sont automatiquement annulés.",
+    icon: Trophy,
+    color: "from-yellow-500 to-orange-500",
+    bgColor: "bg-yellow-50",
+    duration: "Automatique",
+  },
+];
+
+const etapesPorteur = [
+  {
+    numero: 1,
+    titre: "Je soumets mon projet",
+    description: "Projet vérifié et validé",
+    details: "Évaluation éthique, impact mesurable, faisabilité technique",
+    icon: FileText,
+    color: "from-indigo-500 to-blue-500",
+    bgColor: "bg-indigo-50",
+    duration: "24-48h",
+  },
+  {
+    numero: 2,
+    titre: "Je fixe mon objectif",
+    description: "Montant nécessaire défini",
+    details: "Budget transparent avec répartition détaillée des coûts",
+    icon: Target,
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-50",
+    duration: "Flexible",
+  },
+  {
+    numero: 3,
+    titre: "Je mobilise ma communauté",
+    description: "Marketing viral et créatif",
+    details:
+      '"Ajoutez-nous à votre Impact Sprint !" - Communication axée sur l\'urgence et la compétition',
+    icon: Users,
+    color: "from-orange-500 to-red-500",
+    bgColor: "bg-orange-50",
+    duration: "2-4 semaines",
+  },
+  {
+    numero: 4,
+    titre: "Je remporte la course",
+    description: "Premier arrivé = financé !",
+    details: "Réception des fonds dès que l'objectif est atteint",
+    icon: Award,
+    color: "from-red-500 to-pink-500",
+    bgColor: "bg-red-50",
+    duration: "Immédiat",
+  },
+];
+
+const avantages = [
+  {
+    titre: "Engagement Maximum",
+    description:
+      "L'investisseur s'implique émotionnellement dans une équipe de projets et suit avidement leur progression.",
+    icon: Heart,
+    color: "text-red-600",
+    bgColor: "bg-red-100",
+    metric: "89%",
+    metricLabel: "de suivi actif",
+  },
+  {
+    titre: "Efficacité Brutale",
+    description:
+      "Le système récompense le projet qui mobilise le plus rapidement sa communauté et qui est le plus convaincant.",
+    icon: Zap,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    metric: "3.2x",
+    metricLabel: "plus rapide",
+  },
+  {
+    titre: "Clarté pour l'Investisseur",
+    description:
+      "Il sait dès le départ que son risque est strictement limité à 100€, peu importe le nombre de projets qu'il soutient.",
+    icon: Shield,
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
+    metric: "100%",
+    metricLabel: "risque limité",
+  },
+  {
+    titre: "Viralité Accrue",
+    description:
+      "La course est permanente et visible par tous, stimulant un marketing agressif et créatif de la part des porteurs de projet.",
+    icon: Share2,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+    metric: "2.5x",
+    metricLabel: "plus de partages",
+  },
+];
+
+const categories = [
+  {
+    nom: "Technologie & Innovation",
+    projets: 25,
+    icon: "💻",
+    color: "from-blue-500 to-cyan-500",
+    description: "IA, blockchain, tech durable",
+  },
+  {
+    nom: "Création & Arts",
+    projets: 20,
+    icon: "🎨",
+    color: "from-purple-500 to-pink-500",
+    description: "Artistes, créateurs, culture",
+  },
+  {
+    nom: "Environnement & Écologie",
+    projets: 15,
+    icon: "🌱",
+    color: "from-green-500 to-emerald-500",
+    description: "Climat, biodiversité, durabilité",
+  },
+  {
+    nom: "Social & Solidaire",
+    projets: 20,
+    icon: "❤️",
+    color: "from-red-500 to-orange-500",
+    description: "Inclusion, éducation, santé",
+  },
+  {
+    nom: "Culture & Patrimoine",
+    projets: 10,
+    icon: "🏛️",
+    color: "from-amber-500 to-yellow-500",
+    description: "Histoire, traditions, mémoire",
+  },
+  {
+    nom: "Jeux & Divertissement",
+    projets: 10,
+    icon: "🎮",
+    color: "from-indigo-500 to-purple-500",
+    description: "Gaming, esport, créativité",
+  },
+];
+
+const modesFinancement = [
+  {
+    nom: "🎁 Don Participatif",
+    statut: "Actif",
+    description: "Contribution libre ou avec contrepartie",
+    avantages: ["Défiscalisable", "Contreparties créatives", "Impact direct"],
+    color: "bg-green-100 border-green-300 text-green-700",
+    icon: Gift,
+  },
+  {
+    nom: "📈 Investissement (Equity)",
+    statut: "Bientôt",
+    description: "Pour les entreprises à impact",
+    avantages: [
+      "Participation au capital",
+      "Rendement potentiel",
+      "Accompagnement",
+    ],
+    color: "bg-blue-100 border-blue-300 text-blue-700",
+    icon: TrendingUp,
+  },
+  {
+    nom: "📄 Prêt Participatif",
+    statut: "Bientôt",
+    description: "Pour les initiatives locales",
+    avantages: ["Taux préférentiels", "Remboursement garanti", "Impact local"],
+    color: "bg-purple-100 border-purple-300 text-purple-700",
+    icon: Coins,
+  },
+];
+
+const systemeXP = [
+  {
+    action: "Lire un article projet",
+    xp: "+10 XP",
+    icon: Eye,
+    color: "text-blue-600",
+  },
+  {
+    action: "Soutenir un projet",
+    xp: "+50 XP",
+    icon: Heart,
+    color: "text-red-600",
+  },
+  {
+    action: "Partager un projet",
+    xp: "+25 XP",
+    icon: Share2,
+    color: "text-green-600",
+  },
+  {
+    action: "Projet financé avec succès",
+    xp: "+100 XP",
+    icon: Trophy,
+    color: "text-yellow-600",
+  },
+];
+
+export default function PlateformePage() {
+  const [activeTab, setActiveTab] = useState("concept");
+
+  const ProgressBar = ({
+    progress,
+    color = "from-green-500 to-emerald-500",
+  }: { progress: number; color?: string }) => (
+    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div
+        className={`h-full bg-gradient-to-r ${color} transition-all duration-1000 ease-out`}
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-300/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center space-y-8">
+            <div className="flex items-center justify-center gap-2 text-yellow-200">
+              <Zap className="h-6 w-6 animate-pulse" />
+              <span className="text-lg font-semibold tracking-wider">
+                MOTEUR DE FINANCEMENT PARTICIPATIF
+              </span>
+              <Zap className="h-6 w-6 animate-pulse" />
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-black leading-tight">
+              The <span className="text-yellow-300">Plateforme</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+              La technologie qui transforme les décisions des Cercles en projets
+              financés et réalisés
+              <br />
+              <span className="font-bold text-yellow-300">
+                Modèle éthique • Transparence totale • Impact mesurable
+              </span>
+            </p>
+
+            <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-8 max-w-3xl mx-auto border border-white/10">
+              <blockquote className="text-lg italic text-center leading-relaxed">
+                "Votre impact, votre choix. Le plus rapide l'emporte."
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Navigation Tabs */}
+        <div className="flex overflow-x-auto pb-4 mb-8 scrollbar-hide">
+          <div className="flex space-x-1 bg-gray-100 rounded-2xl p-1">
+            {[
+              { id: "concept", label: "Le Concept", icon: Lightbulb },
+              { id: "investisseur", label: "Je Soutiens", icon: User },
+              { id: "porteur", label: "Je Crée", icon: Rocket },
+              { id: "exemple", label: "Exemple", icon: Play },
+              { id: "modeles", label: "Modèles", icon: Coins },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? "bg-white text-gray-900 shadow-lg"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Le Concept Révolutionnaire */}
+        {activeTab === "concept" && (
+          <div className="space-y-12">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-100 to-red-100 p-8 border-b border-orange-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
+                    <Zap className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Le Modèle Impact Sprint
+                    </h2>
+                    <p className="text-lg text-gray-600 mt-2">
+                      Un crowdfunding éthique, transparent et participatif
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 space-y-8">
+                {/* Principe de Base */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Le Principe Révolutionnaire
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        {
+                          title: "Un investissement, plusieurs paris",
+                          description:
+                            "Vous placez 100€ et les 'pariez' sur autant de projets que vous voulez",
+                        },
+                        {
+                          title: "Le premier gagnant rafle tout",
+                          description:
+                            "Seul le premier projet à atteindre 100% reçoit votre argent",
+                        },
+                        {
+                          title: "Risque limité garanti",
+                          description:
+                            "Maximum 100€ prélevé, peu importe le nombre de projets sélectionnés",
+                        },
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {item.title}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                    <h4 className="font-bold text-xl mb-4 text-blue-900">
+                      🎯 Exemple Thomas
+                    </h4>
+                    <div className="space-y-4 text-sm">
+                      {[
+                        { text: "1. Thomas dépose 100€", highlight: true },
+                        {
+                          text: "2. Il sélectionne 5 projets environnementaux",
+                        },
+                        {
+                          text: "3. Le projet 'Énergies solaires' gagne en premier",
+                        },
+                        { text: "4. Résultat : 100€ → Projet solaire" },
+                        {
+                          text: "Ses 4 autres engagements sont annulés automatiquement",
+                          highlight: true,
+                        },
+                      ].map((item, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              item.highlight ? "bg-blue-500" : "bg-blue-300"
+                            }`}
+                          ></div>
+                          <span
+                            className={
+                              item.highlight
+                                ? "font-semibold text-blue-700"
+                                : "text-blue-600"
+                            }
+                          >
+                            {item.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Avantages */}
+                <div>
+                  <h3 className="text-2xl font-bold mb-8 text-center text-gray-900">
+                    Pourquoi Impact Sprint Révolutionne le Crowdfunding
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {avantages.map((avantage, index) => (
+                      <div
+                        key={index}
+                        className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-all duration-300"
+                      >
+                        <div
+                          className={`w-12 h-12 ${avantage.bgColor} rounded-xl flex items-center justify-center mx-auto mb-4`}
+                        >
+                          <avantage.icon
+                            className={`w-6 h-6 ${avantage.color}`}
+                          />
+                        </div>
+                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                          {avantage.metric}
+                        </div>
+                        <div className="text-xs text-gray-500 mb-3">
+                          {avantage.metricLabel}
+                        </div>
+                        <h4 className="font-bold text-lg mb-2 text-gray-900">
+                          {avantage.titre}
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {avantage.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Modèle Économique */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-200">
+                  <h3 className="text-2xl font-bold mb-6 text-green-900">
+                    💶 Modèle Économique Transparent
+                  </h3>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <DollarSign className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="font-bold text-lg mb-2">Frais Justes</h4>
+                      <p className="text-sm text-green-700">
+                        5-7% uniquement sur les campagnes réussies
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <Shield className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="font-bold text-lg mb-2">
+                        Sécurité Totale
+                      </h4>
+                      <p className="text-sm text-blue-700">
+                        Paiements sécurisés et séquestrés
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <Heart className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="font-bold text-lg mb-2">
+                        Réinvestissement
+                      </h4>
+                      <p className="text-sm text-purple-700">
+                        Part des revenus réinvestie dans l'écosystème
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Guide Investisseur */}
+        {activeTab === "investisseur" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-8 border-b border-blue-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
+                    <User className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Devenir Sprinter
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                      Guide complet pour soutenir des projets et maximiser votre
+                      impact
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8">
+                <div className="space-y-8">
+                  {etapesInvestisseur.map((etape, index) => (
+                    <div key={index} className="flex gap-6 items-start group">
+                      <div
+                        className={`w-16 h-16 bg-gradient-to-r ${etape.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        {etape.numero}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start gap-4">
+                            <etape.icon className="h-6 w-6 text-gray-600 mt-1" />
+                            <div>
+                              <h3 className="font-bold text-xl text-gray-900">
+                                {etape.titre}
+                              </h3>
+                              <p className="text-gray-600 font-medium">
+                                {etape.description}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            {etape.duration}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 ml-10 leading-relaxed">
+                          {etape.details}
+                        </p>
+                        {index < etapesInvestisseur.length - 1 && (
+                          <div className="flex justify-center mt-6">
+                            <ArrowRight className="h-6 w-6 text-gray-400 group-hover:translate-x-2 transition-transform duration-300" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                  <h3 className="font-bold text-xl mb-4 flex items-center gap-3 text-green-900">
+                    <Target className="h-6 w-6 text-green-600" />
+                    Stratégies de Sprinter Expérimenté
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {[
+                      {
+                        strategy: "🎯 Diversification intelligente",
+                        details:
+                          "Sélectionnez 5-10 projets dans différentes catégories pour maximiser vos chances",
+                      },
+                      {
+                        strategy: "📊 Suivez les tendances",
+                        details:
+                          "Projets à 70-80% ont plus de chances d'atteindre l'objectif rapidement",
+                      },
+                      {
+                        strategy: "🤝 Partagez vos favoris",
+                        details:
+                          "Plus un projet a de sprinters, plus il a de chances de gagner",
+                      },
+                      {
+                        strategy: "⚡ Agissez vite",
+                        details:
+                          "Les projets HOT peuvent être financés en quelques heures",
+                      },
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        className="bg-white rounded-xl p-4 border border-green-100"
+                      >
+                        <div className="font-semibold text-green-800 mb-2">
+                          {item.strategy}
+                        </div>
+                        <p className="text-sm text-green-700">{item.details}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Système XP */}
+                <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                  <h3 className="font-bold text-xl mb-4 flex items-center gap-3 text-purple-900">
+                    <Award className="h-6 w-6 text-purple-600" />
+                    Système d'Impact Experience Points (XP)
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {systemeXP.map((item, index) => (
+                      <div
+                        key={index}
+                        className="text-center p-4 bg-white rounded-xl border border-purple-100"
+                      >
+                        <item.icon
+                          className={`w-8 h-8 ${item.color} mx-auto mb-2`}
+                        />
+                        <div className="font-semibold text-gray-900 text-sm mb-1">
+                          {item.action}
+                        </div>
+                        <div className="text-lg font-bold text-purple-600">
+                          {item.xp}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Guide Porteur */}
+        {activeTab === "porteur" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-8 border-b border-purple-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                    <Rocket className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Lancer un Projet
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                      Guide pour les porteurs : maximisez vos chances de
+                      remporter la course
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8">
+                <div className="space-y-8">
+                  {etapesPorteur.map((etape, index) => (
+                    <div key={index} className="flex gap-6 items-start group">
+                      <div
+                        className={`w-16 h-16 bg-gradient-to-r ${etape.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        {etape.numero}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start gap-4">
+                            <etape.icon className="h-6 w-6 text-gray-600 mt-1" />
+                            <div>
+                              <h3 className="font-bold text-xl text-gray-900">
+                                {etape.titre}
+                              </h3>
+                              <p className="text-gray-600 font-medium">
+                                {etape.description}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            {etape.duration}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 ml-10 leading-relaxed">
+                          {etape.details}
+                        </p>
+                        {index < etapesPorteur.length - 1 && (
+                          <div className="flex justify-center mt-6">
+                            <ArrowRight className="h-6 w-6 text-gray-400 group-hover:translate-x-2 transition-transform duration-300" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8 mt-12">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                    <h3 className="font-bold text-xl mb-4 flex items-center gap-3 text-blue-900">
+                      <Shield className="h-6 w-6 text-blue-600" />
+                      Critères de Validation
+                    </h3>
+                    <div className="space-y-3">
+                      {[
+                        "Impact écologique positif et mesurable",
+                        "Impact social ou communautaire fort",
+                        "Viabilité économique démontrée",
+                        "Équipe compétente et motivée",
+                        "Budget transparent et justifié",
+                      ].map((critere, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <span className="text-blue-800">{critere}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
+                    <h3 className="font-bold text-xl mb-4 flex items-center gap-3 text-orange-900">
+                      <Flame className="h-6 w-6 text-orange-600" />
+                      Stratégies Marketing Gagnantes
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        {
+                          title: "🎯 'Ajoutez-nous à votre Sprint !'",
+                          description:
+                            "Communication axée sur la sélection plutôt que le don direct",
+                        },
+                        {
+                          title: "📈 FOMO et urgence",
+                          description:
+                            "'On est à 75%, il ne manque que 25% pour gagner !'",
+                        },
+                        {
+                          title: "🤝 Mobilisation communautaire",
+                          description:
+                            "Réseau, réseaux sociaux, partenaires, influenceurs",
+                        },
+                        {
+                          title: "📊 Transparence totale",
+                          description:
+                            "Progression en temps réel, utilisation des fonds",
+                        },
+                      ].map((item, index) => (
+                        <div key={index}>
+                          <div className="font-semibold text-orange-800 mb-1">
+                            {item.title}
+                          </div>
+                          <p className="text-sm text-orange-700">
+                            {item.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Créer Projet */}
+                <div className="text-center mt-8">
+                  <button className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200 hover:scale-105 shadow-lg">
+                    <PlusCircle className="h-5 w-5" />
+                    Soumettre Mon Projet
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Exemple Concret */}
+        {activeTab === "exemple" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border-2 border-green-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-8 border-b border-green-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                    <Play className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Exemple Concret : Thomas et ses 5 Projets
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                      Suivez un cas réel d'Impact Sprint étape par étape
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8">
+                <div className="space-y-8">
+                  {/* Mise en situation */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+                    <h3 className="font-bold text-xl mb-4 text-blue-900">
+                      💡 Mise en Situation
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      Thomas, passionné d'environnement, dispose de 100€ qu'il
+                      souhaite investir dans des projets durables. Au lieu de
+                      choisir un seul projet, il décide d'utiliser Impact Sprint
+                      pour maximiser ses chances d'impact.
+                    </p>
+                  </div>
+
+                  {/* Les 5 projets */}
+                  <div>
+                    <h3 className="font-bold text-2xl mb-6 text-gray-900">
+                      🎯 Les 5 Projets Sélectionnés par Thomas
+                    </h3>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[
+                        {
+                          nom: "Reforestation Amazonie",
+                          progress: 45,
+                          sprinters: 89,
+                          color: "from-green-500 to-emerald-500",
+                        },
+                        {
+                          nom: "Dépollution Méditerranée",
+                          progress: 62,
+                          sprinters: 134,
+                          color: "from-blue-500 to-cyan-500",
+                        },
+                        {
+                          nom: "Énergies solaires village",
+                          progress: 78,
+                          sprinters: 203,
+                          color: "from-yellow-500 to-orange-500",
+                        },
+                        {
+                          nom: "Anti-braconnage Afrique",
+                          progress: 33,
+                          sprinters: 67,
+                          color: "from-red-500 to-pink-500",
+                        },
+                        {
+                          nom: "Mobilité douce ville",
+                          progress: 51,
+                          sprinters: 112,
+                          color: "from-purple-500 to-violet-500",
+                        },
+                      ].map((projet, index) => (
+                        <div
+                          key={index}
+                          className={`bg-white rounded-2xl p-6 border-2 hover:shadow-lg transition-all duration-300 ${
+                            projet.nom === "Énergies solaires village"
+                              ? "border-yellow-400 bg-yellow-50 ring-2 ring-yellow-200"
+                              : "border-gray-200"
+                          }`}
+                        >
+                          <h4 className="font-bold text-lg mb-3 text-gray-900">
+                            {projet.nom}
+                          </h4>
+                          <ProgressBar
+                            progress={projet.progress}
+                            color={projet.color}
+                          />
+                          <div className="flex justify-between items-center mt-3 text-sm text-gray-600">
+                            <span>{projet.progress}%</span>
+                            <span className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              {projet.sprinters}
+                            </span>
+                          </div>
+                          {projet.nom === "Énergies solaires village" && (
+                            <div className="mt-3 flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">
+                              <Trophy className="w-4 h-4" />
+                              🏆 GAGNANT !
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div>
+                    <h3 className="font-bold text-2xl mb-6 text-gray-900">
+                      ⏰ Chronologie de la Course
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        {
+                          jour: "Jour 1",
+                          action: "Thomas sélectionne ses 5 projets",
+                          detail:
+                            "Ses 100€ sont engagés virtuellement sur chacun",
+                          icon: Target,
+                        },
+                        {
+                          jour: "Jour 3",
+                          action: "Mobilisation communautaire",
+                          detail:
+                            "Chaque projet pousse sa communauté à les ajouter dans leur Sprint",
+                          icon: Users,
+                        },
+                        {
+                          jour: "Jour 5",
+                          action: "Le projet solaire prend la tête",
+                          detail: "78% atteint, il ne manque plus que 22%",
+                          icon: TrendingUp,
+                        },
+                        {
+                          jour: "Jour 7",
+                          action: "🏆 VICTOIRE PROJET SOLAIRE",
+                          detail:
+                            "100% atteint ! Le projet reçoit tous les fonds engagés",
+                          icon: Trophy,
+                        },
+                      ].map((etape, index) => (
+                        <div
+                          key={index}
+                          className="flex gap-6 items-start group"
+                        >
+                          <div className="w-20 text-center flex-shrink-0">
+                            <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium group-hover:bg-gray-200 transition-colors">
+                              {etape.jour}
+                            </div>
+                          </div>
+                          <div className="flex-1 bg-white rounded-xl p-4 border border-gray-200 group-hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-3 mb-2">
+                              <etape.icon className="w-5 h-5 text-gray-600" />
+                              <h4 className="font-semibold text-gray-900">
+                                {etape.action}
+                              </h4>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              {etape.detail}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Résultat */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-8">
+                    <h3 className="font-bold text-2xl mb-6 flex items-center gap-3 text-green-900">
+                      <Trophy className="h-6 w-6 text-green-600" />
+                      Résultat Final
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div>
+                        <h4 className="font-bold text-lg mb-4 text-green-800">
+                          ✅ Pour Thomas (Sprinter)
+                        </h4>
+                        <ul className="space-y-3">
+                          {[
+                            "100€ prélevés une seule fois",
+                            "Versés au projet solaire gagnant",
+                            "Ses 4 autres engagements annulés",
+                            "Impact concret garanti",
+                            "+50 XP gagnés",
+                          ].map((item, index) => (
+                            <li key={index} className="flex items-center gap-3">
+                              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              <span className="text-green-700">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-lg mb-4 text-green-800">
+                          🏆 Pour le Projet Solaire
+                        </h4>
+                        <ul className="space-y-3">
+                          {[
+                            "100% financé rapidement",
+                            "Fonds reçus immédiatement",
+                            "Projet peut démarrer",
+                            "Communauté mobilisée",
+                            "Nouveaux sprinters engagés",
+                          ].map((item, index) => (
+                            <li key={index} className="flex items-center gap-3">
+                              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              <span className="text-green-700">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modèles de Financement */}
+        {activeTab === "modeles" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Nos Modèles de Financement
+                </h2>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  Différentes façons de soutenir l'impact, adaptées à chaque
+                  type de projet
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8 mb-12">
+                {modesFinancement.map((mode, index) => (
+                  <div
+                    key={index}
+                    className={`rounded-2xl border-2 p-6 ${mode.color} hover:shadow-xl transition-all duration-300`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <mode.icon className="w-8 h-8" />
+                        <h3 className="font-bold text-lg">{mode.nom}</h3>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          mode.statut === "Actif"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-100 text-blue-700"
+                        }`}
+                      >
+                        {mode.statut}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 mb-4">{mode.description}</p>
+                    <div className="space-y-2">
+                      {mode.avantages.map((avantage, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          {avantage}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Section Catégories */}
+              <div>
+                <h3 className="text-2xl font-bold text-center mb-8 text-gray-900">
+                  100 Projets Organisés en 6 Catégories
+                </h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categories.map((cat, index) => (
+                    <div
+                      key={index}
+                      className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                    >
+                      <div
+                        className={`w-16 h-16 bg-gradient-to-r ${cat.color} rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        {cat.icon}
+                      </div>
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">
+                        {cat.nom}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {cat.description}
+                      </p>
+                      <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                        <Target className="w-4 h-4" />
+                        {cat.projets} projets
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CTA Final */}
+      <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white py-20">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <div className="space-y-8">
+            <h2 className="text-4xl md:text-5xl font-black">
+              Prêt à <span className="text-yellow-300">Changer le Monde</span> ?
+            </h2>
+            <p className="text-xl text-orange-100 max-w-2xl mx-auto leading-relaxed">
+              Rejoignez des milliers de Sprinters qui transforment leurs
+              convictions en actions concrètes.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200 hover:scale-105 shadow-lg">
+                <Rocket className="w-5 h-5" />
+                🚀 Commencer Mon Sprint
+              </button>
+              <button className="flex items-center justify-center gap-3 border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200">
+                <Lightbulb className="w-5 h-5" />
+                💡 Soumettre Mon Projet
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-orange-200">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Risque limité à 100€
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Transparence totale
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Impact mesurable
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

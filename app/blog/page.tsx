@@ -1,18 +1,14 @@
+//@/app/blog/page.tsx
+
+/*
+📰 Page de présentation – mondoBlog
+mondoBlog : la mémoire vivante de la communauté
+*/
+
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Users,
@@ -37,6 +33,18 @@ import {
   Link as LinkIcon,
   Layers,
   Hash,
+  Lock,
+  Unlock,
+  Sparkles,
+  Award,
+  Zap,
+  BarChart3,
+  Users2,
+  Brain,
+  Coins,
+  Calendar,
+  ThumbsUp,
+  Crown,
 } from "lucide-react";
 
 // Données basées sur votre architecture blog détaillée
@@ -61,7 +69,10 @@ const rubriques = [
       "Comment organiser sa kitchenette en ville",
       "Batch cooking : mon planning du dimanche",
     ],
-    color: "bg-green-100 border-green-300 text-green-700",
+    color: "from-green-500 to-emerald-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    stats: { articles: 156, followers: 2340, engagement: 89 },
   },
   {
     id: "technologie",
@@ -83,7 +94,10 @@ const rubriques = [
       "Les IA génératives vont-elles remplacer les créatifs ?",
       "Midjourney : guide pour débutants",
     ],
-    color: "bg-blue-100 border-blue-300 text-blue-700",
+    color: "from-blue-500 to-cyan-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    stats: { articles: 203, followers: 3120, engagement: 92 },
   },
   {
     id: "spiritualite",
@@ -105,7 +119,10 @@ const rubriques = [
       "5 techniques pour méditer quand on est hyperactif",
       "Méditation en nature : reconnectez-vous",
     ],
-    color: "bg-purple-100 border-purple-300 text-purple-700",
+    color: "from-purple-500 to-violet-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
+    stats: { articles: 98, followers: 1870, engagement: 95 },
   },
   {
     id: "developpement",
@@ -127,7 +144,10 @@ const rubriques = [
       "Comment dire non sans culpabiliser",
       "Gérer son énergie, pas son temps",
     ],
-    color: "bg-orange-100 border-orange-300 text-orange-700",
+    color: "from-orange-500 to-amber-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
+    stats: { articles: 178, followers: 2890, engagement: 91 },
   },
   {
     id: "societe",
@@ -144,8 +164,15 @@ const rubriques = [
       "Inclusion & diversité",
       "Tendances sociales & culture populaire",
     ],
-    exemplesArticles: [],
-    color: "bg-indigo-100 border-indigo-300 text-indigo-700",
+    exemplesArticles: [
+      "L'impact des réseaux sociaux sur notre perception du monde",
+      "Génération Z : nouveaux codes, nouvelles attentes",
+      "Le futur du travail en 2030",
+    ],
+    color: "from-indigo-500 to-blue-600",
+    bgColor: "bg-indigo-50",
+    borderColor: "border-indigo-200",
+    stats: { articles: 145, followers: 2670, engagement: 87 },
   },
   {
     id: "carriere",
@@ -162,8 +189,15 @@ const rubriques = [
       "Productivité professionnelle",
       "Études de cas & témoignages",
     ],
-    exemplesArticles: [],
-    color: "bg-emerald-100 border-emerald-300 text-emerald-700",
+    exemplesArticles: [
+      "Mon parcours pour créer mon entreprise à 25 ans",
+      "Les 10 erreurs à éviter en freelance",
+      "Comment pitcher son projet en 3 minutes",
+    ],
+    color: "from-emerald-500 to-green-600",
+    bgColor: "bg-emerald-50",
+    borderColor: "border-emerald-200",
+    stats: { articles: 134, followers: 2450, engagement: 88 },
   },
   {
     id: "sciences",
@@ -180,8 +214,15 @@ const rubriques = [
       "Science & éthique",
       "Innovations durables",
     ],
-    exemplesArticles: [],
-    color: "bg-teal-100 border-teal-300 text-teal-700",
+    exemplesArticles: [
+      "Les dernières découvertes sur le cerveau humain",
+      "Transition énergétique : où en est-on ?",
+      "Comment réduire son empreinte carbone au quotidien",
+    ],
+    color: "from-teal-500 to-cyan-600",
+    bgColor: "bg-teal-50",
+    borderColor: "border-teal-200",
+    stats: { articles: 112, followers: 1980, engagement: 90 },
   },
   {
     id: "art",
@@ -198,38 +239,45 @@ const rubriques = [
       "Inspirations d'artistes",
       "Séries & documentaires",
     ],
-    exemplesArticles: [],
-    color: "bg-pink-100 border-pink-300 text-pink-700",
+    exemplesArticles: [
+      "Les coulisses de ma dernière exposition",
+      "Voyager seul : mes meilleures astuces",
+      "Comment développer sa créativité au quotidien",
+    ],
+    color: "from-pink-500 to-rose-600",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
+    stats: { articles: 167, followers: 2780, engagement: 86 },
   },
 ];
 
 const tagsTransversaux = {
   objectif: [
-    "#Débutant",
-    "#GuidePratique",
-    "#Inspiration",
-    "#Transformation",
-    "#Challenge30Jours",
+    { tag: "#Débutant", count: 234 },
+    { tag: "#GuidePratique", count: 189 },
+    { tag: "#Inspiration", count: 312 },
+    { tag: "#Transformation", count: 156 },
+    { tag: "#Challenge30Jours", count: 78 },
   ],
   public: [
-    "#Étudiants",
-    "#Entrepreneurs",
-    "#Créatifs",
-    "#Famille",
-    "#Professionnels",
+    { tag: "#Étudiants", count: 145 },
+    { tag: "#Entrepreneurs", count: 267 },
+    { tag: "#Créatifs", count: 198 },
+    { tag: "#Famille", count: 123 },
+    { tag: "#Professionnels", count: 289 },
   ],
   theme: [
-    "#Minimalisme",
-    "#Mindfulness",
-    "#Innovation",
-    "#BienÊtre",
-    "#Productivité",
+    { tag: "#Minimalisme", count: 167 },
+    { tag: "#Mindfulness", count: 234 },
+    { tag: "#Innovation", count: 278 },
+    { tag: "#BienÊtre", count: 312 },
+    { tag: "#Productivité", count: 245 },
   ],
   effort: [
-    "#5Minutes",
-    "#ProjetWeekend",
-    "#RoutineQuotidienne",
-    "#ObjectifAnnuel",
+    { tag: "#5Minutes", count: 89 },
+    { tag: "#ProjetWeekend", count: 67 },
+    { tag: "#RoutineQuotidienne", count: 178 },
+    { tag: "#ObjectifAnnuel", count: 56 },
   ],
 };
 
@@ -240,33 +288,55 @@ const exemplesLiensTransversaux = [
       {
         rubrique: "Lifestyle",
         titre: "Capsule wardrobe : 30 pièces pour 3 mois",
+        likes: 234,
+        reads: 1567,
       },
       {
         rubrique: "Technologie",
         titre: "5 apps pour désencombrer sa vie digitale",
+        likes: 189,
+        reads: 1234,
       },
       {
         rubrique: "Spiritualité",
         titre: "Minimalisme mental : l'art du lâcher-prise",
+        likes: 312,
+        reads: 1987,
       },
       {
         rubrique: "Développement Perso",
         titre: "Budget minimaliste : vivre mieux avec moins",
+        likes: 267,
+        reads: 1678,
       },
     ],
   },
   {
     tag: "#RoutineMatin",
     articles: [
-      { rubrique: "Lifestyle", titre: "Ma routine beauté du matin" },
+      {
+        rubrique: "Lifestyle",
+        titre: "Ma routine beauté du matin",
+        likes: 156,
+        reads: 987,
+      },
       {
         rubrique: "Développement Perso",
         titre: "3 habitudes pour booster sa journée",
+        likes: 278,
+        reads: 1456,
       },
-      { rubrique: "Spiritualité", titre: "Méditation & journaling au réveil" },
+      {
+        rubrique: "Spiritualité",
+        titre: "Méditation & journaling au réveil",
+        likes: 345,
+        reads: 1789,
+      },
       {
         rubrique: "Technologie",
         titre: "Les apps qui optimisent mes matinées",
+        likes: 198,
+        reads: 1123,
       },
     ],
   },
@@ -278,24 +348,71 @@ const avantagesArchitecture = [
     description: "Maximum 2 clics pour atteindre un article",
     icon: Navigation,
     color: "text-blue-600",
+    bgColor: "bg-blue-100",
   },
   {
     titre: "SEO Fort",
     description: "Structure plate, siloing thématique clair",
     icon: TrendingUp,
     color: "text-green-600",
+    bgColor: "bg-green-100",
   },
   {
     titre: "Éditorial Cohérent",
     description: "Rubriques distinctes mais connectées",
     icon: Layers,
     color: "text-purple-600",
+    bgColor: "bg-purple-100",
   },
   {
     titre: "Scalable",
     description: "Évolution facile sans casser la structure",
     icon: Target,
     color: "text-orange-600",
+    bgColor: "bg-orange-100",
+  },
+];
+
+const systemeXP = [
+  {
+    niveau: "Sprinter Débutant",
+    xp: "0-1,000",
+    avantages: [
+      "Accès aux articles publics",
+      "Commentaires basiques",
+      "Profil personnalisé",
+    ],
+    icon: Zap,
+    color: "from-blue-400 to-cyan-500",
+  },
+  {
+    niveau: "Eco-Rusher",
+    xp: "1,001-5,000",
+    avantages: [
+      "Publication d'articles",
+      "Accès aux cercles",
+      "Badges exclusifs",
+    ],
+    icon: Users2,
+    color: "from-green-400 to-emerald-500",
+  },
+  {
+    niveau: "Impact Leader",
+    xp: "5,001-15,000",
+    avantages: ["Modération des contenus", "Mentorat", "Accès early features"],
+    icon: Crown,
+    color: "from-purple-400 to-violet-500",
+  },
+  {
+    niveau: "Legend of Impact",
+    xp: "15,001+",
+    avantages: [
+      "Gouvernance plateforme",
+      "Événements privés",
+      "Statut ambassadeur",
+    ],
+    icon: Award,
+    color: "from-yellow-400 to-orange-500",
   },
 ];
 
@@ -305,22 +422,30 @@ export default function BlogAboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-slate-900 to-blue-900 text-white">
-        <div className="max-w-6xl mx-auto px-6 py-20">
+      <div className="relative bg-gradient-to-r from-slate-900 via-purple-900 to-blue-900 text-white overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6 py-20">
           <div className="text-center space-y-8">
             <div className="flex items-center justify-center gap-2 text-blue-200">
               <BookOpen className="h-6 w-6" />
-              <span className="text-lg font-semibold">À PROPOS DU BLOG</span>
+              <span className="text-lg font-semibold tracking-wider">
+                À PROPOS DU BLOG
+              </span>
               <BookOpen className="h-6 w-6" />
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-black">
-              The <span className="text-yellow-300">Blog</span>
+            <h1 className="text-5xl md:text-6xl font-black leading-tight">
+              mondo<span className="text-yellow-300">Blog</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto">
-              Une source d'inspiration pour nourrir vos projets et élargir votre
-              vision du monde
+            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+              La mémoire vivante de la communauté Impact Rush
               <br />
               <span className="font-bold text-yellow-300">
                 8 rubriques • Structure plate • Tags transversaux • Navigation
@@ -328,478 +453,596 @@ export default function BlogAboutPage() {
               </span>
             </p>
 
-            <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-8 max-w-3xl mx-auto">
-              <blockquote className="text-lg italic text-center">
+            <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-8 max-w-3xl mx-auto border border-white/10">
+              <blockquote className="text-lg italic text-center leading-relaxed">
                 "Explorez nos réflexions sur la technologie, le développement
-                personnel, la spiritualité et les enjeux de société"
+                personnel, la spiritualité et les enjeux de société. Une source
+                d'inspiration pour nourrir vos projets et élargir votre vision
+                du monde."
               </blockquote>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Navigation Tabs */}
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-8"
-        >
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4">
-            <TabsTrigger value="presentation">Notre Approche</TabsTrigger>
-            <TabsTrigger value="rubriques">8 Rubriques</TabsTrigger>
-            <TabsTrigger value="navigation">Navigation</TabsTrigger>
-            <TabsTrigger value="avantages">Avantages</TabsTrigger>
-          </TabsList>
+        <div className="flex overflow-x-auto pb-4 mb-8 scrollbar-hide">
+          <div className="flex space-x-1 bg-gray-100 rounded-2xl p-1">
+            {[
+              { id: "presentation", label: "Notre Approche", icon: Lightbulb },
+              { id: "rubriques", label: "8 Rubriques", icon: Layers },
+              { id: "navigation", label: "Système de Tags", icon: Hash },
+              { id: "communauté", label: "Communauté", icon: Users },
+              { id: "avantages", label: "Avantages", icon: Star },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? "bg-white text-gray-900 shadow-lg"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          {/* Présentation */}
-          <TabsContent value="presentation" className="space-y-12">
-            <Card className="border-2 border-blue-200">
-              <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Lightbulb className="h-8 w-8 text-blue-600" />
-                  Notre Philosophie Éditoriale
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  Une approche moderne du blogging généraliste
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8 space-y-8">
+        {/* Présentation */}
+        {activeTab === "presentation" && (
+          <div className="space-y-12">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-8 border-b border-blue-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                    <Lightbulb className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Notre Philosophie Éditoriale
+                    </h2>
+                    <p className="text-lg text-gray-600 mt-2">
+                      Une approche moderne du blogging généraliste
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 space-y-8">
                 {/* Mission */}
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-blue-900">
+                    <h3 className="text-2xl font-bold text-gray-900">
                       Notre Mission
                     </h3>
                     <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
-                        <div>
-                          <p className="font-semibold">
-                            Inspiration quotidienne
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Articles pratiques pour améliorer votre quotidien
-                          </p>
+                      {[
+                        {
+                          title: "Inspiration quotidienne",
+                          description:
+                            "Articles pratiques pour améliorer votre quotidien",
+                        },
+                        {
+                          title: "Réflexions approfondies",
+                          description:
+                            "Analyses sur les enjeux de société et l'évolution du monde",
+                        },
+                        {
+                          title: "Guides pratiques",
+                          description:
+                            "Conseils actionnables pour votre développement personnel",
+                        },
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {item.title}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {item.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
-                        <div>
-                          <p className="font-semibold">
-                            Réflexions approfondies
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Analyses sur les enjeux de société et l'évolution du
-                            monde
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
-                        <div>
-                          <p className="font-semibold">Guides pratiques</p>
-                          <p className="text-sm text-gray-600">
-                            Conseils actionnables pour votre développement
-                            personnel
-                          </p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
-                    <h4 className="font-bold text-lg mb-4 text-orange-900">
+                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
+                    <h4 className="font-bold text-xl mb-4 text-orange-900">
                       Architecture Unique
                     </h4>
-                    <div className="space-y-3 text-sm">
-                      <p>
-                        <strong>Structure plate :</strong>{" "}
-                        <span className="text-green-600">Maximum 2 clics</span>{" "}
-                        pour atteindre un article
-                      </p>
-                      <p>
-                        <strong>8 rubriques équilibrées :</strong> Vision
-                        globale du monde
-                      </p>
-                      <p>
-                        <strong>Tags transversaux :</strong> Connexions entre
-                        les thématiques
-                      </p>
-                      <p>
-                        <strong>SEO optimisé :</strong> Siloing thématique clair
-                      </p>
+                    <div className="space-y-4 text-sm">
+                      {[
+                        {
+                          text: "Structure plate : Maximum 2 clics pour atteindre un article",
+                          highlight: true,
+                        },
+                        {
+                          text: "8 rubriques équilibrées : Vision globale du monde",
+                        },
+                        {
+                          text: "Tags transversaux : Connexions entre les thématiques",
+                        },
+                        { text: "SEO optimisé : Siloing thématique clair" },
+                      ].map((item, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              item.highlight ? "bg-orange-500" : "bg-orange-300"
+                            }`}
+                          ></div>
+                          <span
+                            className={
+                              item.highlight
+                                ? "font-semibold text-orange-700"
+                                : "text-orange-600"
+                            }
+                          >
+                            {item.text}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Valeurs */}
-                <div>
-                  <h3 className="text-xl font-bold mb-6 text-center">
-                    Nos Valeurs Éditoriales
-                  </h3>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                      {
-                        icon: Heart,
-                        titre: "Authenticité",
-                        desc: "Contenu sincère et vécu",
-                      },
-                      {
-                        icon: Eye,
-                        titre: "Transparence",
-                        desc: "Sources citées, opinions assumées",
-                      },
-                      {
-                        icon: Globe,
-                        titre: "Ouverture",
-                        desc: "Diversité des points de vue",
-                      },
-                      {
-                        icon: Share2,
-                        titre: "Partage",
-                        desc: "Connaissances accessibles à tous",
-                      },
-                    ].map((valeur, index) => (
-                      <Card
-                        key={index}
-                        className="text-center hover:shadow-lg transition-shadow"
-                      >
-                        <CardContent className="p-6">
-                          <valeur.icon className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-                          <h4 className="font-bold text-lg mb-2">
-                            {valeur.titre}
-                          </h4>
-                          <p className="text-sm text-gray-600">{valeur.desc}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Les 8 Rubriques */}
-          <TabsContent value="rubriques" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Layers className="h-8 w-8 text-purple-600" />
-                  Nos 8 Rubriques Principales
-                </CardTitle>
-                <CardDescription>
-                  Une vision globale équilibrée : corps, esprit, société, futur
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8">
-                <div className="grid gap-8">
-                  {rubriques.map((rubrique, index) => (
-                    <Card
-                      key={index}
-                      className={`${rubrique.color} border-2 hover:shadow-lg transition-shadow`}
-                    >
-                      <CardContent className="p-6">
-                        <div className="space-y-4">
-                          {/* Header */}
-                          <div className="flex items-center gap-4">
-                            <div className="text-4xl">{rubrique.icon}</div>
-                            <div className="flex-1">
-                              <h3 className="font-bold text-xl">
-                                {rubrique.nom}
-                              </h3>
-                              <p className="text-sm opacity-80">
-                                {rubrique.description}
-                              </p>
-                            </div>
-                            <Badge variant="outline">
-                              {rubrique.categories.length} catégories
-                            </Badge>
-                          </div>
-
-                          {/* Catégories */}
-                          <div>
-                            <h4 className="font-semibold mb-2 text-sm">
-                              Catégories :
-                            </h4>
-                            <div className="flex flex-wrap gap-1">
-                              {rubrique.categories
-                                .slice(0, 4)
-                                .map((cat, catIndex) => (
-                                  <Badge
-                                    key={catIndex}
-                                    variant="outline"
-                                    className="text-xs"
-                                  >
-                                    {cat}
-                                  </Badge>
-                                ))}
-                              {rubrique.categories.length > 4 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{rubrique.categories.length - 4} autres
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Exemples d'articles */}
-                          {rubrique.exemplesArticles.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2 text-sm">
-                                Exemples d'articles :
-                              </h4>
-                              <ul className="text-sm space-y-1">
-                                {rubrique.exemplesArticles.map(
-                                  (article, artIndex) => (
-                                    <li
-                                      key={artIndex}
-                                      className="flex items-center gap-2"
-                                    >
-                                      <PenTool className="h-3 w-3" />"{article}"
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            </div>
-                          )}
+                {/* Deux Espaces */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Espace Public */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Unlock className="w-6 h-6 text-green-600" />
+                      <h3 className="text-xl font-bold text-green-900">
+                        Espace Public
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        "Articles et tribunes des membres",
+                        "Portraits de projets réussis",
+                        "Bilan d'impact et transparence financière",
+                        "Inspirations et bonnes pratiques",
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-sm text-green-700"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          {item}
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      ))}
+                    </div>
+                  </div>
 
-          {/* Système de Navigation */}
-          <TabsContent value="navigation" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Navigation className="h-8 w-8 text-green-600" />
-                  Système de Navigation Avancé
-                </CardTitle>
-                <CardDescription>
-                  Tags transversaux et liens croisés pour une exploration riche
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8 space-y-8">
-                {/* Tags Transversaux */}
-                <div>
-                  <h3 className="text-xl font-bold mb-6">Tags Transversaux</h3>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {Object.entries(tagsTransversaux).map(([type, tags]) => (
-                      <Card key={type} className="border border-gray-200">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold mb-3 capitalize flex items-center gap-2">
-                            <Hash className="h-4 w-4" />
-                            Par {type}
-                          </h4>
-                          <div className="flex flex-wrap gap-1">
-                            {tags.map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  {/* Espace Privé */}
+                  <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Lock className="w-6 h-6 text-purple-600" />
+                      <h3 className="text-xl font-bold text-purple-900">
+                        Espace Privé
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        "Comptes-rendus de réunions",
+                        "Discussions collaboratives",
+                        "Suivi des projets en cours",
+                        "Rédaction d'essais collectifs",
+                      ].map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-sm text-purple-700"
+                        >
+                          <CheckCircle className="w-4 h-4 text-purple-500" />
+                          {item}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-                <Separator />
+        {/* Les 8 Rubriques */}
+        {activeTab === "rubriques" && (
+          <div className="space-y-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Nos 8 Rubriques Principales
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Une vision globale équilibrée : corps, esprit, société, futur
+              </p>
+            </div>
 
-                {/* Exemples de Liens Croisés */}
-                <div>
-                  <h3 className="text-xl font-bold mb-6">
-                    Exemples de Liens Croisés
-                  </h3>
+            <div className="grid gap-8">
+              {rubriques.map((rubrique, index) => (
+                <div
+                  key={index}
+                  className={`${rubrique.bgColor} rounded-3xl border-2 ${rubrique.borderColor} p-8 hover:shadow-2xl transition-all duration-300`}
+                >
                   <div className="space-y-6">
-                    {exemplesLiensTransversaux.map((exemple, index) => (
-                      <Card
-                        key={index}
-                        className="border border-indigo-200 bg-indigo-50"
-                      >
-                        <CardContent className="p-6">
-                          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
-                            <Tag className="h-5 w-5 text-indigo-600" />
-                            {exemple.tag}
-                          </h4>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {exemple.articles.map((article, artIndex) => (
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="text-5xl">{rubrique.icon}</div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900">
+                            {rubrique.nom}
+                          </h3>
+                          <p className="text-gray-600 mt-1">
+                            {rubrique.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="text-center">
+                          <div className="font-bold text-gray-900">
+                            {rubrique.stats.articles}
+                          </div>
+                          <div className="text-gray-500">Articles</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-gray-900">
+                            {rubrique.stats.followers}
+                          </div>
+                          <div className="text-gray-500">Abonnés</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Catégories */}
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">
+                        Catégories :
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {rubrique.categories.map((cat, catIndex) => (
+                          <span
+                            key={catIndex}
+                            className="px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300"
+                          >
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Exemples d'articles */}
+                    {rubrique.exemplesArticles.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          Articles populaires :
+                        </h4>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          {rubrique.exemplesArticles.map(
+                            (article, artIndex) => (
                               <div
                                 key={artIndex}
-                                className="flex items-start gap-3 p-3 bg-white rounded-lg"
+                                className="bg-white rounded-xl p-4 border border-gray-200"
                               >
-                                <LinkIcon className="h-4 w-4 text-indigo-600 mt-1" />
-                                <div>
-                                  <p className="font-semibold text-sm text-indigo-700">
-                                    {article.rubrique}
-                                  </p>
-                                  <p className="text-sm">{article.titre}</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <PenTool className="w-4 h-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-600">
+                                    Exemple
+                                  </span>
                                 </div>
+                                <p className="text-gray-800 font-medium">
+                                  "{article}"
+                                </p>
                               </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
 
-                {/* Fonctionnalités de Navigation */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="font-bold text-lg mb-4">
-                    Fonctionnalités de Navigation
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        <Search className="h-4 w-4" />
-                        Recherche Avancée
-                      </h4>
-                      <ul className="text-sm space-y-1 text-gray-600">
-                        <li>• Recherche par mot-clé</li>
-                        <li>• Filtres par catégorie, tag, date</li>
-                        <li>• Suggestions de contenu connexe</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        <Filter className="h-4 w-4" />
-                        Navigation Contextuelle
-                      </h4>
-                      <ul className="text-sm space-y-1 text-gray-600">
-                        <li>• Articles similaires</li>
-                        <li>• Même catégorie/tag</li>
-                        <li>• Parcours thématiques</li>
-                      </ul>
+                    {/* CTA */}
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <ThumbsUp className="w-4 h-4" />
+                        <span>{rubrique.stats.engagement}% d'engagement</span>
+                      </div>
+                      <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200">
+                        Explorer
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              ))}
+            </div>
+          </div>
+        )}
 
-          {/* Avantages */}
-          <TabsContent value="avantages" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Star className="h-8 w-8 text-yellow-600" />
-                  Pourquoi Cette Architecture Fonctionne
-                </CardTitle>
-                <CardDescription>
-                  UX optimisée, SEO performant, évolutivité garantie
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8">
-                <div className="grid md:grid-cols-2 gap-8">
-                  {avantagesArchitecture.map((avantage, index) => (
-                    <Card
-                      key={index}
-                      className="hover:shadow-lg transition-shadow"
+        {/* Système de Navigation */}
+        {activeTab === "navigation" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                  <Hash className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Système de Tags Transversaux
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    Navigation intelligente et exploration enrichie
+                  </p>
+                </div>
+              </div>
+
+              {/* Tags Transversaux */}
+              <div className="space-y-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {Object.entries(tagsTransversaux).map(([type, tags]) => (
+                    <div
+                      key={type}
+                      className="bg-gray-50 rounded-2xl p-6 border border-gray-200"
                     >
-                      <CardContent className="p-6 text-center">
-                        <avantage.icon
-                          className={`h-12 w-12 mx-auto mb-4 ${avantage.color}`}
-                        />
-                        <h3 className="font-bold text-lg mb-2">
-                          {avantage.titre}
-                        </h3>
-                        <p className="text-gray-600">{avantage.description}</p>
-                      </CardContent>
-                    </Card>
+                      <h4 className="font-bold text-lg mb-4 capitalize flex items-center gap-2 text-gray-900">
+                        <Hash className="h-5 w-5 text-gray-600" />
+                        Par {type}
+                      </h4>
+                      <div className="space-y-2">
+                        {tags.map((tagObj) => (
+                          <div
+                            key={tagObj.tag}
+                            className="flex justify-between items-center p-2 bg-white rounded-lg border border-gray-200"
+                          >
+                            <span className="font-medium text-gray-700">
+                              {tagObj.tag}
+                            </span>
+                            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {tagObj.count}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
 
-                <Separator className="my-8" />
-
-                {/* Recommandations */}
-                <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-                  <h3 className="font-bold text-lg mb-4 text-green-900">
-                    Recommandations de Mise en Œuvre
+                {/* Exemples de Liens Croisés */}
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Exemples de Liens Croisés
                   </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>
-                        Commencer simple : 3-4 catégories principales au début
+                  {exemplesLiensTransversaux.map((exemple, index) => (
+                    <div
+                      key={index}
+                      className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-200"
+                    >
+                      <h4 className="font-bold text-xl mb-4 flex items-center gap-3">
+                        <Tag className="h-6 w-6 text-indigo-600" />
+                        {exemple.tag}
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {exemple.articles.map((article, artIndex) => (
+                          <div
+                            key={artIndex}
+                            className="bg-white rounded-xl p-4 border border-indigo-100 hover:shadow-lg transition-shadow duration-200"
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="font-semibold text-sm text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">
+                                {article.rubrique}
+                              </span>
+                              <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <ThumbsUp className="w-3 h-3" />
+                                {article.likes}
+                              </div>
+                            </div>
+                            <p className="font-medium text-gray-800 mb-2">
+                              {article.titre}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />
+                                {article.reads} lectures
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Communauté */}
+        {activeTab === "communauté" && (
+          <div className="space-y-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Système d'Impact XP
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Progressez, contribuez et soyez récompensé pour votre engagement
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {systemeXP.map((niveau, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+                >
+                  <div
+                    className={`bg-gradient-to-r ${niveau.color} p-6 text-white`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <niveau.icon className="w-8 h-8" />
+                      <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-full">
+                        {niveau.xp} XP
                       </span>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>
-                        Ajouter les sous-catégories seulement avec 8-10 articles
-                        sur un sous-thème
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>
-                        Utiliser les tags avec stratégie : maximum 3-5 tags par
-                        article
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>
-                        Créer des pages de landing pour les tags et séries
-                        populaires
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>
-                        Utiliser des breadcrumbs : Accueil - Technologie - IA &
-                        Futur - Article
-                      </span>
-                    </div>
+                    <h3 className="text-xl font-bold">{niveau.niveau}</h3>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                      Avantages :
+                    </h4>
+                    <ul className="space-y-2">
+                      {niveau.avantages.map((avantage, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-center gap-2 text-sm text-gray-600"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          {avantage}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              ))}
+            </div>
 
-        {/* CTA Final */}
-        <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-3xl p-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-black mb-6">
-            Explorez Notre Univers
-          </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            8 rubriques, des centaines d'articles, des milliers de connexions.
-            Commencez votre exploration dès maintenant.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4"
-              asChild
-            >
-              <Link href="/blog">
-                <BookOpen className="h-5 w-5 mr-2" />
+            {/* Actions qui rapportent des XP */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                Comment gagner des XP ?
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { action: "Lire un article", xp: "10 XP", icon: BookOpen },
+                  { action: "Commenter", xp: "25 XP", icon: MessageCircle },
+                  { action: "Partager", xp: "30 XP", icon: Share2 },
+                  { action: "Écrire un article", xp: "100 XP", icon: PenTool },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="text-center p-4 bg-white rounded-xl border border-gray-200"
+                  >
+                    <item.icon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                    <div className="font-semibold text-gray-900">
+                      {item.action}
+                    </div>
+                    <div className="text-sm text-purple-600 font-medium">
+                      {item.xp}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Avantages */}
+        {activeTab === "avantages" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Pourquoi Cette Architecture Fonctionne
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    UX optimisée, SEO performant, évolutivité garantie
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                {avantagesArchitecture.map((avantage, index) => (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200"
+                  >
+                    <div
+                      className={`w-12 h-12 ${avantage.bgColor} rounded-xl flex items-center justify-center mb-4`}
+                    >
+                      <avantage.icon className={`w-6 h-6 ${avantage.color}`} />
+                    </div>
+                    <h3 className="font-bold text-xl mb-2 text-gray-900">
+                      {avantage.titre}
+                    </h3>
+                    <p className="text-gray-600">{avantage.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommandations */}
+              <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-200">
+                <h3 className="font-bold text-2xl mb-6 text-green-900">
+                  Recommandations de Mise en Œuvre
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {[
+                    "Commencer simple : 3-4 catégories principales au début",
+                    "Ajouter les sous-catégories seulement avec 8-10 articles sur un sous-thème",
+                    "Utiliser les tags avec stratégie : maximum 3-5 tags par article",
+                    "Créer des pages de landing pour les tags et séries populaires",
+                    "Utiliser des breadcrumbs : Accueil - Technologie - IA & Futur - Article",
+                    "Analyser régulièrement les données d'engagement pour ajuster",
+                  ].map((reco, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-green-800">{reco}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CTA Final */}
+      <div className="bg-gradient-to-r from-slate-900 to-blue-900 text-white py-20">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <div className="space-y-8">
+            <h2 className="text-4xl md:text-5xl font-black">
+              Prêt à Explorer Notre{" "}
+              <span className="text-yellow-300">Univers</span> ?
+            </h2>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+              8 rubriques, des centaines d'articles, des milliers de connexions.
+              Commencez votre exploration dès maintenant.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200 hover:scale-105 shadow-lg">
+                <BookOpen className="w-5 h-5" />
                 Découvrir les Articles
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-black hover:bg-white px-8 py-4"
-              asChild
-            >
-              <Link href="/blog/newsletter">
-                <MessageCircle className="h-5 w-5 mr-2" />
+              </button>
+              <button className="flex items-center justify-center gap-3 border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-4 rounded-xl text-lg transition-all duration-200">
+                <MessageCircle className="w-5 h-5" />
                 S'abonner à la Newsletter
-              </Link>
-            </Button>
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-blue-200">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Contenu frais quotidien
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Communauté bienveillante
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                Système de récompenses
+              </span>
+            </div>
           </div>
         </div>
       </div>
