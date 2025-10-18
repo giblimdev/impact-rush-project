@@ -46,6 +46,7 @@ import {
   ThumbsUp,
   Crown,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Données basées sur votre architecture blog détaillée
 const rubriques = [
@@ -1004,7 +1005,9 @@ export default function BlogAboutPage() {
           </div>
         )}
       </div>
-
+      <Link href={"/blog/exemple"}>
+        <Button>Voir exemple</Button>
+      </Link>
       {/* CTA Final */}
       <div className="bg-gradient-to-r from-slate-900 to-blue-900 text-white py-20">
         <div className="max-w-4xl mx-auto text-center px-6">
