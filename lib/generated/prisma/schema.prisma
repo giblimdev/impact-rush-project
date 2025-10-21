@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+////////////////////////
+/////  auth model  /////
+////////////////////////
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("account")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  roles         Role[]    @default([USER]) // roles: user, admin, moderator, dev, author, owner, member, visitor
+  Profile       Profile[]
+  adress        adress[]
+  Post          Post[]
+  Project       Project[]
+  Circle        Circle[]
+
+  @@map("user")
+}
+
+enum Role {
+  USER
+  ADMIN
+  DEV
+  AURHOR
+  MODERATOR
+  OWNER
+  MEMBER
+  VISITOR
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification")
+}
+
+///////////////////////////
+/////   user models   /////
+///////////////////////////
+
+model Profile {
+  id            String   @id @default(cuid())
+  userId        String   @unique @map("user_id")
+  age           Int?
+  profession    String?
+  motivation    String?
+  interests     String[]
+  experience    String?
+  disponibility String? // nombre d'heure par semaine
+  bio           String?
+  firstName     String?  @map("first_name")
+  lastName      String?  @map("last_name")
+  phone         String?
+  phoneVerified Boolean  @default(false) @map("phone_verified")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile")
+}
+
+model adress {
+  id         String  @id @default(cuid())
+  userId     String  @map("user_id")
+  street     String?
+  city       String?
+  state      String?
+  postalCode String? @map("postal_code")
+  country    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("address")
+}
+
+///////////////////////
+///// blog models /////
+///////////////////////
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  authorId  String   @map("author_id")
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("post")
+}
+
+//////////////////////////
+///// project models /////
+//////////////////////////
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  ownerId     String   @map("owner_id")
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  description String?
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+}
+
+/////////////////////////
+///// Circle models /////
+/////////////////////////
+model Circle {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  creatorId   String   @map("creator_id")
+  creator     User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
+//////////////////////////////
+/////   payment models   /////
+//////////////////////////////
+
+////////////////////////////
+/////   other models   /////
+////////////////////////////
+
+/////////////////////////////
+/////  gallery ùodels   /////
+/////////////////////////////

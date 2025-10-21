@@ -5,7 +5,7 @@ import { Nav } from "./Nav";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Globe2 } from "lucide-react";
-import { LoginButton } from "./LoginButton";
+import { UserMenu } from "./LoginButton";
 
 export const Header: React.FC = () => {
   return (
@@ -33,7 +33,7 @@ export const Header: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <LoginButton />
+          <UserMenu />
         </motion.div>
       </div>
     </header>
