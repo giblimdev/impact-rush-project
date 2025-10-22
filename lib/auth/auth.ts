@@ -9,29 +9,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Si tu veux désactiver la vérification d'email
-    minPasswordLength: 6, // Longueur minimale du mot de passe
-    maxPasswordLength: 100, // Longueur maximale du mot de passe
+    requireEmailVerification: false,
+    minPasswordLength: 6,
+    maxPasswordLength: 100,
   },
   user: {
-    // Champs supplémentaires pour ton schéma
     additionalFields: {
       roles: {
         type: "string[]",
         required: false,
-        defaultValue: ["USER"], // Correspond à ton enum Role
-      },
-      image: {
-        type: "string",
-        required: false,
+        defaultValue: ["USER"],
+        input: false, // empêche l’input côté client
       },
     },
   },
   session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 jours en secondes
-    updateAge: 60 * 60 * 24, // Mettre à jour la session toutes les 24h
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
-  secret: process.env.AUTH_SECRET as string,
-  trustHost: true,
-  baseURL: process.env.NEXTAUTH_URL || "http://localhost:3000",
+  secret: process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET!,
+  baseURL: process.env.BETTER_AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"],
 });

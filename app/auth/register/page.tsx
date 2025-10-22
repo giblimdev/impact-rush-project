@@ -1,7 +1,7 @@
 // app/auth/register/page.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth/auth-client";
@@ -23,11 +23,8 @@ import {
   User,
   AlertCircle,
   Loader2,
-  Camera,
-  Upload,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -36,13 +33,12 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [avatarBase64, setAvatarBase64] = useState<string>("");
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,29 +48,36 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const toBase64 = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string); // data URL
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Vérifier la taille du fichier (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("L'image ne doit pas dépasser 5MB");
-        return;
-      }
+    if (!file) return;
 
-      // Vérifier le type de fichier
-      if (!file.type.startsWith("image/")) {
-        setError("Veuillez sélectionner une image valide");
-        return;
-      }
-
-      setAvatar(file);
-      setAvatarPreview(URL.createObjectURL(file));
-      setError("");
+    // validations simples
+    if (!file.type.startsWith("image/")) {
+      setError("Veuillez sélectionner une image valide");
+      return;
     }
-  };
+    if (file.size > 5 * 1024 * 1024) {
+      setError("L'image ne doit pas dépasser 5MB");
+      return;
+    }
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
+    setError("");
+    setAvatarPreview(URL.createObjectURL(file));
+    try {
+      const b64 = await toBase64(file);
+      setAvatarBase64(b64);
+    } catch {
+      setError("Impossible de lire l'image sélectionnée");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,13 +85,12 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
-    // Validation
+    // Validations de base
     if (formData.password !== formData.confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
       setIsLoading(false);
       return;
     }
-
     if (formData.password.length < 6) {
       setError("Le mot de passe doit contenir au moins 6 caractères");
       setIsLoading(false);
@@ -96,33 +98,19 @@ export default function RegisterPage() {
     }
 
     try {
-      // Créer un FormData pour envoyer l'image
-      const formDataToSend = new FormData();
-      formDataToSend.append("email", formData.email);
-      formDataToSend.append("password", formData.password);
-      formDataToSend.append("name", formData.name);
-
-      if (avatar) {
-        formDataToSend.append("image", avatar);
-      }
-
-      // Pour Better Auth, on utilise l'approche standard
+      // Inscription Better Auth côté client (envoi de l'image base64)
       const result = await signUp.email({
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        // L'image sera gérée séparément via une API route personnalisée
-        callbackURL: "/dashboard",
+        image: avatarBase64 || "", // Better Auth stocke user.image (string)
+        callbackURL: "/auth/login",
       });
 
       if (result.error) {
         setError(result.error.message || "Erreur lors de l'inscription");
       } else {
-        // Si l'inscription réussit et qu'il y a une image, on l'upload
-        if (avatar && result.data?.user) {
-          await uploadAvatar(avatar, result.data.user.id);
-        }
-        router.push("/dashboard");
+        router.replace("/auth/login");
       }
     } catch (err) {
       setError("Une erreur est survenue lors de l'inscription");
@@ -132,42 +120,20 @@ export default function RegisterPage() {
     }
   };
 
-  const uploadAvatar = async (file: File, userId: string) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("userId", userId);
-
-      const response = await fetch("/api/upload/avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'upload de l'avatar");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Avatar upload error:", error);
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <User className="h-6 w-6 text-white" />
+          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Prévisualisation avatar"
+                className="w-12 h-12 object-cover"
+              />
+            ) : (
+              <User className="h-6 w-6 text-white" />
+            )}
           </div>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Créer un compte
@@ -184,55 +150,6 @@ export default function RegisterPage() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
-          {/* Section Avatar */}
-          <div className="flex justify-center mb-4">
-            <div className="relative group">
-              <Avatar
-                className="h-20 w-20 border-4 border-white shadow-lg cursor-pointer"
-                onClick={handleAvatarClick}
-              >
-                <AvatarImage src={avatarPreview} alt="Preview avatar" />
-                <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-lg font-medium">
-                  {formData.name ? (
-                    getInitials(formData.name)
-                  ) : (
-                    <User className="h-8 w-8" />
-                  )}
-                </AvatarFallback>
-              </Avatar>
-
-              {/* Overlay au hover */}
-              <div
-                className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                onClick={handleAvatarClick}
-              >
-                <Camera className="h-6 w-6 text-white" />
-              </div>
-
-              {/* Badge d'upload */}
-              <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-1 shadow-lg">
-                <Upload className="h-4 w-4 text-white" />
-              </div>
-            </div>
-
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              accept="image/*"
-              className="hidden"
-            />
-          </div>
-
-          <div className="text-center mb-2">
-            <p className="text-sm text-gray-500">
-              Cliquez sur l'avatar pour uploader une image
-            </p>
-            <p className="text-xs text-gray-400 mt-1">
-              PNG, JPG, JPEG (max. 5MB)
-            </p>
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -308,7 +225,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium"
+              >
                 Confirmer le mot de passe
               </Label>
               <div className="relative">
@@ -337,6 +257,20 @@ export default function RegisterPage() {
                   )}
                 </button>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="avatar" className="text-sm font-medium">
+                Image de profil (PNG/JPG/JPEG, max. 5MB)
+              </Label>
+              <Input
+                id="avatar"
+                name="avatar"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={isLoading}
+              />
             </div>
 
             <Button

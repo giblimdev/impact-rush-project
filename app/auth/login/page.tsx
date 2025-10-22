@@ -35,13 +35,13 @@ export default function LoginPage() {
       const result = await signIn.email({
         email,
         password,
-        callbackURL: "/dashboard", // Redirection après connexion
+        callbackURL: "/auth/welcome", // Redirection après connexion
       });
 
       if (result.error) {
         setError(result.error.message || "Erreur de connexion");
       } else {
-        router.push("/dashboard");
+        router.push("/auth/welcome");
       }
     } catch (err) {
       setError("Une erreur est survenue lors de la connexion");

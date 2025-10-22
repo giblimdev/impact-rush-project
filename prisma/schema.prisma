@@ -17,53 +17,77 @@ datasource db {
 ////////////////////////
 /////  auth model  /////
 ////////////////////////
-model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  Boolean   @default(false)
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  roles         Role[]   @default([USER]) 
 
-  @@unique([provider, providerAccountId])
-  @@map("account")
+  accounts       Account[]
+  sessions       Session[]
+
+  @@map("user")
+  Profile Profile[]
+  adress adress[]
+  Post Post[]
+  Project Project[]
+  Circle Circle[]
+  Reaction Reaction[]
+  Comment Comment[]
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("session")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified Boolean   @default(false) @map("email_verified")
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  roles         Role[]    @default([USER]) // roles: user, admin, moderator, dev, author, owner, member, visitor
-  Profile       Profile[]
-  adress        adress[]
-  Post          Post[]
-  Project       Project[]
-  Circle        Circle[]
+model Account {
+  id                       String    @id @default(cuid())
+  userId                   String
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("user")
+  accountId                String
+  providerId               String
+  accessToken              String?
+  refreshToken             String?
+  accessTokenExpiresAt     DateTime?
+  refreshTokenExpiresAt    DateTime?
+  scope                    String?
+  idToken                  String?
+  password                 String?
+
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@map("account")
 }
 
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("verification")
+}
 enum Role {
   USER
   ADMIN
@@ -73,16 +97,6 @@ enum Role {
   OWNER
   MEMBER
   VISITOR
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification")
 }
 
 ///////////////////////////
@@ -126,18 +140,460 @@ model adress {
 ///////////////////////
 ///// blog models /////
 ///////////////////////
+/*
 
+
+Voici un mode d’emploi complet expliquant chaque champ et comment les utiliser dans Prisma pour publier, répondre, classer et enrichir des posts avec médias, code, tags, catégories, commentaires et réactions.​
+
+Enums
+PostStatus: DRAFT (brouillon), PUBLISHED (publié), SCHEDULED (planifié), ARCHIVED (archivé) pour piloter le cycle de vie éditorial.​
+
+PostVisibility: PUBLIC (visible), UNLISTED (non listé mais accessible par lien), PRIVATE (restreint) pour le contrôle de visibilité.​
+
+MediaType: IMAGE, VIDEO, AUDIO, FILE, EMBED, CODE pour typer un asset associé à un post.​
+
+ReactionType: LIKE, CLAP, UPVOTE, DOWNVOTE, LOVE pour typer l’interaction utilisateur.​
+
+CommentStatus: VISIBLE, HIDDEN, SPAM, DELETED pour la modération des commentaires.​
+
+Post
+id: identifiant unique de post en cuid(), clé primaire.​
+
+slug: identifiant lisible unique pour la navigation SEO des articles.​
+
+title, subtitle: titres du contenu (subtitle optionnel).​
+
+content: contenu riche au format Json pour stocker des blocs (texte, embeds, etc.).​
+
+contentText: version texte à plat pour SEO, extraits, et recherche plein texte.​
+
+excerpt: résumé court affiché dans les listes et cartes.​
+
+coverImageUrl, ogImageUrl, canonicalUrl: métadonnées SEO/social (image de couverture, image Open Graph, URL canonique).​
+
+status, visibility: statut éditorial et visibilité du post avec valeurs par défaut DRAFT et PUBLIC.​
+
+publishedAt, scheduledAt: dates de publication effective et de planification pour un post SCHEDULED.​
+
+readingTime, wordCount: métriques d’expérience de lecture (calculées côté app puis stockées).​
+
+language: langue du contenu (ex. "fr", "en").​
+
+authorId, author: relation obligatoire vers User pour l’auteur, avec onDelete: Cascade.​
+
+parentId, parent, children: auto‑relation 1‑n nommée "PostReplies" pour organiser des réponses ou fils de discussion entre posts.​
+
+attachments, codeSnippets: listes vers tables MediaAsset et CodeSnippet pour médias et extraits de code.​
+
+tags, categories: tables de jonction explicites pour tags et catégories multiples par post.​
+
+comments, reactions: listes de commentaires threadés et réactions utilisateur.​
+
+createdAt, updatedAt: timestamps gérés par Prisma, avec indexes utiles (authorId, status, publishedAt et slug).​
+
+MediaAsset
+id: identifiant unique de l’asset.​
+
+postId, post: FK vers Post, cascade à la suppression du post.​
+
+type: catégorise l’asset (image, vidéo, etc.).​
+
+url: emplacement du fichier (CDN/objet).​
+
+provider: source ou hébergeur (ex. youtube, vimeo, upload local).​
+
+title, alt, caption: métadonnées d’accessibilité et de contexte visuel.​
+
+position: ordre d’affichage dans le post.​
+
+mimeType, sizeBytes, width, height, durationMs: propriétés techniques du média.​
+
+meta: Json libre pour métadonnées variables (thumbnails, palette, codecs).​
+
+createdAt, updatedAt; index sur (postId, type, position) pour listes ordonnées.​
+
+CodeSnippet
+id: identifiant unique de l’extrait.​
+
+postId, post: FK vers Post, cascade si le post est supprimé.​
+
+title: titre optionnel de l’extrait.​
+
+language: langage (ex. ts, js, py) pour coloration/formatage.​
+
+filename: nom de fichier optionnel pour contexte.​
+
+code: contenu brut de l’extrait de code.​
+
+highlightedHtml: rendu HTML surligné pré‑généré (si tu veux éviter le surlignage à la volée).​
+
+createdAt, updatedAt; index sur (postId, language) pour filtrage par langage.​
+
+Tag et PostsOnTags
+Tag.id, name, slug, description: entité tag avec unicité sur name et slug.​
+
+Tag.posts: côté 1‑n de la relation explicite via PostsOnTags.​
+
+PostsOnTags.postId, tagId, post, tag: jonction m‑n explicite entre Post et Tag.​
+
+assignedAt, assignedBy: métadonnées d’assignation et auteur de la classification.​
+
+Clé composée @@id([postId, tagId]) pour unicité et performances de jointure.​
+
+Category et PostsOnCategories
+Category.id, name, slug, description: entité catégorie hiérarchique avec unicité sur name et slug.​
+
+parentId, parent, children: auto‑relation "CategoryHierarchy" pour catégories parent/enfant.​
+
+posts: côté 1‑n de la relation explicite via PostsOnCategories.​
+
+PostsOnCategories.postId, categoryId, post, category: jonction m‑n explicite entre Post et Category.​
+
+position, assignedAt: ordre du post dans une catégorie et date d’assignation.​
+
+Comment
+id: identifiant du commentaire.​
+
+postId, post: FK vers Post, supprime en cascade avec le post.​
+
+authorId, author: FK vers User pour l’auteur du commentaire.​
+
+content: contenu riche Json (texte structuré, mentions, emojis).​
+
+contentText: version texte à plat pour recherche et aperçu.​
+
+status: statut de modération (VISIBLE, HIDDEN, SPAM, DELETED).​
+
+parentId, parent, children: auto‑relation "CommentThread" pour fils de commentaires.​
+
+createdAt, updatedAt; index sur (postId, parentId) pour paginer par fil.​
+
+Reaction
+id: identifiant de la réaction.​
+
+postId, post: FK vers Post pour la cible de la réaction.​
+
+userId, user: FK vers User pour l’auteur de la réaction.​
+
+type: type de réaction (LIKE/CLAP/UPVOTE/DOWNVOTE/LOVE).​
+
+createdAt: date d’ajout de la réaction.​
+
+@@unique([postId, userId, type]): empêche les doublons pour un même utilisateur et type.​
+
+Nommage et mapping SQL
+Les attributs @map sur les champs et @@map sur les modèles alignent les noms Prisma avec les noms de colonnes et tables SQL existants sans casser le code client.​
+
+Exemples d’opérations
+Créer un brouillon de post avec tags et catégories via tables de jonction.​
+
+ts
+await prisma.post.create({
+  data: {
+    slug: "mon-article",
+    title: "Mon article",
+    status: "DRAFT",
+    authorId: userId,
+    tags: { create: [{ tag: { connect: { slug: "nextjs" } } }] },
+    categories: { create: [{ category: { connect: { slug: "tutoriels" } } }] },
+  },
+});
+Planifier un post (status SCHEDULED + scheduledAt) puis le publier (status PUBLISHED + publishedAt).​
+
+ts
+await prisma.post.update({ where: { id }, data: { status: "SCHEDULED", scheduledAt: date } });
+await prisma.post.update({ where: { id }, data: { status: "PUBLISHED", publishedAt: new Date() } });
+Répondre à un post en créant un enfant via parentId (auto‑relation PostReplies).​
+
+ts
+await prisma.post.create({ data: { slug, title, authorId, parentId: parentPostId } });
+Attacher un média ordonné et métadonné à un post.​
+
+ts
+await prisma.mediaAsset.create({
+  data: { postId, type: "IMAGE", url, alt: "Couverture", position: 1, meta: { focalPoint: [0.5, 0.3] } },
+});
+Ajouter un extrait de code avec langage et éventuel HTML surligné.​
+
+ts
+await prisma.codeSnippet.create({
+  data: { postId, language: "ts", filename: "example.ts", code: "const x=1;" },
+});
+Commenter et répondre à un commentaire via la relation CommentThread.​
+
+ts
+const parent = await prisma.comment.create({ data: { postId, authorId, content: { text: "Top!" } } });
+await prisma.comment.create({ data: { postId, authorId, parentId: parent.id, content: { text: "Merci!" } } });
+Réagir avec contrainte d’unicité par type et utilisateur.​
+
+ts
+await prisma.reaction.upsert({
+  where: { postId_userId_type: { postId, userId, type: "LIKE" } },
+  create: { postId, userId, type: "LIKE" },
+  update: {},
+});
+Relations, auto‑relations et m‑n explicites
+Les relations sont définies par fields/references et peuvent être auto‑référentes pour modéliser des hiérarchies ou des fils (PostReplies, CommentThread).​
+
+Les relations m‑n explicites via tables de jonction (PostsOnTags, PostsOnCategories) permettent d’ajouter des métadonnées d’association et d’optimiser les requêtes.​
+
+Utilise include/select et des indexes ciblés pour charger efficacement auteurs, réponses, commentaires, tags et catégories.​
+
+Champs Json et contenu riche
+Les champs Json conviennent pour stocker des blocs éditoriaux, embeds, ou métadonnées variables sans changer le schéma SQL.​
+
+Typage côté TypeScript: définis des types d’objets et fais valider/transformer le JSON au runtime pour garder la sécurité des données.​
+
+Bonnes pratiques
+Génère et valide le slug avant insertion et garde un index unique pour éviter les collisions.​
+
+Utilise onDelete: Cascade avec prudence et préfère les archives logiques si nécessaire au lieu de supprimer définitivement.​
+
+Maintiens contentText synchronisé avec content pour le SEO et la recherche, par tâche côté app.​
+
+Si tu modifies des noms SQL, garde @map et @@map alignés pour préserver la compatibilité avec les migrations et le code existant.​
+
+
+
+
+
+
+
+*/
+
+
+
+
+
+// Enums
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum PostVisibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  EMBED
+  CODE
+}
+
+enum ReactionType {
+  LIKE
+  CLAP
+  UPVOTE
+  DOWNVOTE
+  LOVE
+}
+
+enum CommentStatus {
+  VISIBLE
+  HIDDEN
+  SPAM
+  DELETED
+}
+
+// Post principal avec réponses (self-relation)
 model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  authorId  String   @map("author_id")
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  title         String
+  subtitle      String?
+  // contenu riche stocké en JSON (ex. blocs, mdx sérialisé, structure d'éditeur)
+  content       Json?
+  // version texte pour SEO/recherche plein texte
+  contentText   String?        @map("content_text")
+  excerpt       String?
+  coverImageUrl String?        @map("cover_image_url")
+  canonicalUrl  String?        @map("canonical_url")
+  ogImageUrl    String?        @map("og_image_url")
 
+  status        PostStatus     @default(DRAFT)
+  visibility    PostVisibility @default(PUBLIC)
+  publishedAt   DateTime?      @map("published_at")
+  scheduledAt   DateTime?      @map("scheduled_at")
+
+  readingTime   Int?           @map("reading_time")
+  wordCount     Int?           @map("word_count")
+  language      String?
+
+  authorId      String         @map("author_id")
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // réponses/threads
+  parentId      String?        @map("parent_id")
+  parent        Post?          @relation("PostReplies", fields: [parentId], references: [id])
+  children      Post[]         @relation("PostReplies")
+
+  // médias et contenu associé
+  attachments   MediaAsset[]
+  codeSnippets  CodeSnippet[]
+
+  // taxonomie
+  tags          PostsOnTags[]
+  categories    PostsOnCategories[]
+
+  // interactions
+  comments      Comment[]
+  reactions     Reaction[]
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt      @map("updated_at")
+
+  @@index([authorId, status, publishedAt])
+  @@index([slug])
   @@map("post")
+}
+
+// Médias attachés (images, vidéos, fichiers, embeds, code)
+model MediaAsset {
+  id         String    @id @default(cuid())
+  postId     String    @map("post_id")
+  post       Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  type       MediaType
+  url        String
+  provider   String?
+  title      String?
+  alt        String?
+  caption    String?
+  position   Int?
+
+  mimeType   String?   @map("mime_type")
+  sizeBytes  Int?      @map("size_bytes")
+  width      Int?
+  height     Int?
+  durationMs Int?      @map("duration_ms")
+  meta       Json?     // métadonnées libres (ex. thumbnails, codecs, palette)
+
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt      @map("updated_at")
+
+  @@index([postId, type, position])
+  @@map("media_asset")
+}
+
+// Extraits de code dédiés (optionnel si tu ne veux pas tout mettre en JSON)
+model CodeSnippet {
+  id              String    @id @default(cuid())
+  postId          String    @map("post_id")
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  title           String?
+  language        String
+  filename        String?
+  code            String
+  highlightedHtml String?   @map("highlighted_html")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt      @map("updated_at")
+
+  @@index([postId, language])
+  @@map("code_snippet")
+}
+
+// Tags m-n explicite
+model Tag {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  slug        String        @unique
+  description String?
+  posts       PostsOnTags[]
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt      @map("updated_at")
+  @@map("tag")
+}
+
+model PostsOnTags {
+  postId     String @map("post_id")
+  tagId      String @map("tag_id")
+  post       Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag        Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  assignedBy String?  @map("assigned_by")
+
+  @@id([postId, tagId])
+  @@map("posts_on_tags")
+}
+
+// Catégories hiérarchiques + m-n
+model Category {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  description String?
+
+  parentId    String?              @map("parent_id")
+  parent      Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]           @relation("CategoryHierarchy")
+
+  posts       PostsOnCategories[]
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt      @map("updated_at")
+
+  @@map("category")
+}
+
+model PostsOnCategories {
+  postId     String   @map("post_id")
+  categoryId String   @map("category_id")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  position   Int?
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  @@id([postId, categoryId])
+  @@map("posts_on_categories")
+}
+
+// Commentaires threadés (réponses de commentaires)
+model Comment {
+  id          String        @id @default(cuid())
+  postId      String        @map("post_id")
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  authorId    String        @map("author_id")
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  content     Json?         // riche (texte, mentions, emojis)
+  contentText String?       @map("content_text")
+  status      CommentStatus @default(VISIBLE)
+
+  parentId    String?       @map("parent_id")
+  parent      Comment?      @relation("CommentThread", fields: [parentId], references: [id])
+  children    Comment[]     @relation("CommentThread")
+
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt      @map("updated_at")
+
+  @@index([postId, parentId])
+  @@map("comment")
+}
+
+// Réactions (likes, claps, etc.)
+model Reaction {
+  id        String       @id @default(cuid())
+  postId    String       @map("post_id")
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      ReactionType @default(LIKE)
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@unique([postId, userId, type])
+  @@map("reaction")
 }
 
 //////////////////////////
@@ -177,5 +633,5 @@ model Circle {
 ////////////////////////////
 
 /////////////////////////////
-/////  gallery ùodels   /////
+/////  gallery models   /////
 /////////////////////////////
