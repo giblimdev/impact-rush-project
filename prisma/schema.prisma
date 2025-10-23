@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -17,6 +14,14 @@ datasource db {
 ////////////////////////
 /////  auth model  /////
 ////////////////////////
+
+enum KycStatus { 
+  NONE 
+  PENDING 
+  VERIFIED 
+  REJECTED 
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String?
@@ -25,57 +30,83 @@ model User {
   image          String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  roles         Role[]   @default([USER]) 
+  roles          Role[]    
+  kycStatus      KycStatus @default(NONE)
 
+  // Authentication
   accounts       Account[]
   sessions       Session[]
 
-  @@map("user")
-  Profile Profile[]
-  adress adress[]
-  Post Post[]
-  Project Project[]
-  Circle Circle[]
-  Reaction Reaction[]
-  Comment Comment[]
+  // Profile
+  profile        Profile?
+  addresses      Address[]
+
+  // Content
+  posts          Post[]
+  comments       Comment[]
+  reactions      Reaction[]
+  reviewAssignments ReviewAssignment[]
+
+  // Projects & Funding
+  ownedProjects  Project[]  @relation("ProjectOwner")
+  projectMemberships ProjectMember[]
+  donations      ProjectDonation[]
+  investments    ProjectInvestment[]
+  loans          ProjectLoan[]
+  pledges        Pledge[]
+
+  // Circles & Community
+  ownedCircles   Circle[]   @relation("CircleOwner")
+  circleMemberships CircleMember[]
+  subscriptions  Subscription[]
+
+  // Legal & Compliance
+  legalEntities  LegalEntity[]
+
+  // Wallet & Transactions
+  wallets        Wallet[]
+  transactions   Transaction[]
+
+  // Gamification
+  userXP         UserXP?
+  userBadges     UserBadge[]
+  xpEvents       XPEvent[]
+
+  @@map("users")
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique
+  expiresAt  DateTime
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  token     String   @unique
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("session")
+  @@map("sessions")
 }
 
 model Account {
-  id                       String    @id @default(cuid())
-  userId                   String
-  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  accountId                String
-  providerId               String
-  accessToken              String?
-  refreshToken             String?
-  accessTokenExpiresAt     DateTime?
-  refreshTokenExpiresAt    DateTime?
-  scope                    String?
-  idToken                  String?
-  password                 String?
-
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
+  id                        String    @id @default(cuid())
+  userId                    String
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId                 String
+  providerId                String
+  accessToken               String?
+  refreshToken              String?
+  accessTokenExpiresAt      DateTime?
+  refreshTokenExpiresAt     DateTime?
+  scope                     String?
+  idToken                   String?
+  password                  String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
   @@unique([providerId, accountId])
-  @@map("account")
+  @@map("accounts")
 }
 
 model Verification {
@@ -86,13 +117,14 @@ model Verification {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  @@map("verification")
+  @@map("verifications")
 }
+
 enum Role {
   USER
   ADMIN
   DEV
-  AURHOR
+  AUTHOR
   MODERATOR
   OWNER
   MEMBER
@@ -104,270 +136,44 @@ enum Role {
 ///////////////////////////
 
 model Profile {
-  id            String   @id @default(cuid())
-  userId        String   @unique @map("user_id")
-  age           Int?
-  profession    String?
-  motivation    String?
-  interests     String[]
-  experience    String?
-  disponibility String? // nombre d'heure par semaine
-  bio           String?
-  firstName     String?  @map("first_name")
-  lastName      String?  @map("last_name")
-  phone         String?
-  phoneVerified Boolean  @default(false) @map("phone_verified")
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  age            Int?
+  profession     String?
+  motivation     String?
+  interests      String[]
+  experience     String?
+  disponibility  String?
+  bio            String?
+  firstName      String?  @map("first_name")
+  lastName       String?  @map("last_name")
+  phone          String?
+  phoneVerified  Boolean  @default(false) @map("phone_verified")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("profile")
+  @@map("profiles")
 }
 
-model adress {
-  id         String  @id @default(cuid())
-  userId     String  @map("user_id")
-  street     String?
-  city       String?
-  state      String?
-  postalCode String? @map("postal_code")
-  country    String?
+model Address {
+  id          String  @id @default(cuid())
+  userId      String  @map("user_id")
+  street      String?
+  city        String?
+  state       String?
+  postalCode  String? @map("postal_code")
+  country     String?
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("address")
+  @@map("addresses")
 }
 
 ///////////////////////
 ///// blog models /////
 ///////////////////////
-/*
 
-
-Voici un mode d’emploi complet expliquant chaque champ et comment les utiliser dans Prisma pour publier, répondre, classer et enrichir des posts avec médias, code, tags, catégories, commentaires et réactions.​
-
-Enums
-PostStatus: DRAFT (brouillon), PUBLISHED (publié), SCHEDULED (planifié), ARCHIVED (archivé) pour piloter le cycle de vie éditorial.​
-
-PostVisibility: PUBLIC (visible), UNLISTED (non listé mais accessible par lien), PRIVATE (restreint) pour le contrôle de visibilité.​
-
-MediaType: IMAGE, VIDEO, AUDIO, FILE, EMBED, CODE pour typer un asset associé à un post.​
-
-ReactionType: LIKE, CLAP, UPVOTE, DOWNVOTE, LOVE pour typer l’interaction utilisateur.​
-
-CommentStatus: VISIBLE, HIDDEN, SPAM, DELETED pour la modération des commentaires.​
-
-Post
-id: identifiant unique de post en cuid(), clé primaire.​
-
-slug: identifiant lisible unique pour la navigation SEO des articles.​
-
-title, subtitle: titres du contenu (subtitle optionnel).​
-
-content: contenu riche au format Json pour stocker des blocs (texte, embeds, etc.).​
-
-contentText: version texte à plat pour SEO, extraits, et recherche plein texte.​
-
-excerpt: résumé court affiché dans les listes et cartes.​
-
-coverImageUrl, ogImageUrl, canonicalUrl: métadonnées SEO/social (image de couverture, image Open Graph, URL canonique).​
-
-status, visibility: statut éditorial et visibilité du post avec valeurs par défaut DRAFT et PUBLIC.​
-
-publishedAt, scheduledAt: dates de publication effective et de planification pour un post SCHEDULED.​
-
-readingTime, wordCount: métriques d’expérience de lecture (calculées côté app puis stockées).​
-
-language: langue du contenu (ex. "fr", "en").​
-
-authorId, author: relation obligatoire vers User pour l’auteur, avec onDelete: Cascade.​
-
-parentId, parent, children: auto‑relation 1‑n nommée "PostReplies" pour organiser des réponses ou fils de discussion entre posts.​
-
-attachments, codeSnippets: listes vers tables MediaAsset et CodeSnippet pour médias et extraits de code.​
-
-tags, categories: tables de jonction explicites pour tags et catégories multiples par post.​
-
-comments, reactions: listes de commentaires threadés et réactions utilisateur.​
-
-createdAt, updatedAt: timestamps gérés par Prisma, avec indexes utiles (authorId, status, publishedAt et slug).​
-
-MediaAsset
-id: identifiant unique de l’asset.​
-
-postId, post: FK vers Post, cascade à la suppression du post.​
-
-type: catégorise l’asset (image, vidéo, etc.).​
-
-url: emplacement du fichier (CDN/objet).​
-
-provider: source ou hébergeur (ex. youtube, vimeo, upload local).​
-
-title, alt, caption: métadonnées d’accessibilité et de contexte visuel.​
-
-position: ordre d’affichage dans le post.​
-
-mimeType, sizeBytes, width, height, durationMs: propriétés techniques du média.​
-
-meta: Json libre pour métadonnées variables (thumbnails, palette, codecs).​
-
-createdAt, updatedAt; index sur (postId, type, position) pour listes ordonnées.​
-
-CodeSnippet
-id: identifiant unique de l’extrait.​
-
-postId, post: FK vers Post, cascade si le post est supprimé.​
-
-title: titre optionnel de l’extrait.​
-
-language: langage (ex. ts, js, py) pour coloration/formatage.​
-
-filename: nom de fichier optionnel pour contexte.​
-
-code: contenu brut de l’extrait de code.​
-
-highlightedHtml: rendu HTML surligné pré‑généré (si tu veux éviter le surlignage à la volée).​
-
-createdAt, updatedAt; index sur (postId, language) pour filtrage par langage.​
-
-Tag et PostsOnTags
-Tag.id, name, slug, description: entité tag avec unicité sur name et slug.​
-
-Tag.posts: côté 1‑n de la relation explicite via PostsOnTags.​
-
-PostsOnTags.postId, tagId, post, tag: jonction m‑n explicite entre Post et Tag.​
-
-assignedAt, assignedBy: métadonnées d’assignation et auteur de la classification.​
-
-Clé composée @@id([postId, tagId]) pour unicité et performances de jointure.​
-
-Category et PostsOnCategories
-Category.id, name, slug, description: entité catégorie hiérarchique avec unicité sur name et slug.​
-
-parentId, parent, children: auto‑relation "CategoryHierarchy" pour catégories parent/enfant.​
-
-posts: côté 1‑n de la relation explicite via PostsOnCategories.​
-
-PostsOnCategories.postId, categoryId, post, category: jonction m‑n explicite entre Post et Category.​
-
-position, assignedAt: ordre du post dans une catégorie et date d’assignation.​
-
-Comment
-id: identifiant du commentaire.​
-
-postId, post: FK vers Post, supprime en cascade avec le post.​
-
-authorId, author: FK vers User pour l’auteur du commentaire.​
-
-content: contenu riche Json (texte structuré, mentions, emojis).​
-
-contentText: version texte à plat pour recherche et aperçu.​
-
-status: statut de modération (VISIBLE, HIDDEN, SPAM, DELETED).​
-
-parentId, parent, children: auto‑relation "CommentThread" pour fils de commentaires.​
-
-createdAt, updatedAt; index sur (postId, parentId) pour paginer par fil.​
-
-Reaction
-id: identifiant de la réaction.​
-
-postId, post: FK vers Post pour la cible de la réaction.​
-
-userId, user: FK vers User pour l’auteur de la réaction.​
-
-type: type de réaction (LIKE/CLAP/UPVOTE/DOWNVOTE/LOVE).​
-
-createdAt: date d’ajout de la réaction.​
-
-@@unique([postId, userId, type]): empêche les doublons pour un même utilisateur et type.​
-
-Nommage et mapping SQL
-Les attributs @map sur les champs et @@map sur les modèles alignent les noms Prisma avec les noms de colonnes et tables SQL existants sans casser le code client.​
-
-Exemples d’opérations
-Créer un brouillon de post avec tags et catégories via tables de jonction.​
-
-ts
-await prisma.post.create({
-  data: {
-    slug: "mon-article",
-    title: "Mon article",
-    status: "DRAFT",
-    authorId: userId,
-    tags: { create: [{ tag: { connect: { slug: "nextjs" } } }] },
-    categories: { create: [{ category: { connect: { slug: "tutoriels" } } }] },
-  },
-});
-Planifier un post (status SCHEDULED + scheduledAt) puis le publier (status PUBLISHED + publishedAt).​
-
-ts
-await prisma.post.update({ where: { id }, data: { status: "SCHEDULED", scheduledAt: date } });
-await prisma.post.update({ where: { id }, data: { status: "PUBLISHED", publishedAt: new Date() } });
-Répondre à un post en créant un enfant via parentId (auto‑relation PostReplies).​
-
-ts
-await prisma.post.create({ data: { slug, title, authorId, parentId: parentPostId } });
-Attacher un média ordonné et métadonné à un post.​
-
-ts
-await prisma.mediaAsset.create({
-  data: { postId, type: "IMAGE", url, alt: "Couverture", position: 1, meta: { focalPoint: [0.5, 0.3] } },
-});
-Ajouter un extrait de code avec langage et éventuel HTML surligné.​
-
-ts
-await prisma.codeSnippet.create({
-  data: { postId, language: "ts", filename: "example.ts", code: "const x=1;" },
-});
-Commenter et répondre à un commentaire via la relation CommentThread.​
-
-ts
-const parent = await prisma.comment.create({ data: { postId, authorId, content: { text: "Top!" } } });
-await prisma.comment.create({ data: { postId, authorId, parentId: parent.id, content: { text: "Merci!" } } });
-Réagir avec contrainte d’unicité par type et utilisateur.​
-
-ts
-await prisma.reaction.upsert({
-  where: { postId_userId_type: { postId, userId, type: "LIKE" } },
-  create: { postId, userId, type: "LIKE" },
-  update: {},
-});
-Relations, auto‑relations et m‑n explicites
-Les relations sont définies par fields/references et peuvent être auto‑référentes pour modéliser des hiérarchies ou des fils (PostReplies, CommentThread).​
-
-Les relations m‑n explicites via tables de jonction (PostsOnTags, PostsOnCategories) permettent d’ajouter des métadonnées d’association et d’optimiser les requêtes.​
-
-Utilise include/select et des indexes ciblés pour charger efficacement auteurs, réponses, commentaires, tags et catégories.​
-
-Champs Json et contenu riche
-Les champs Json conviennent pour stocker des blocs éditoriaux, embeds, ou métadonnées variables sans changer le schéma SQL.​
-
-Typage côté TypeScript: définis des types d’objets et fais valider/transformer le JSON au runtime pour garder la sécurité des données.​
-
-Bonnes pratiques
-Génère et valide le slug avant insertion et garde un index unique pour éviter les collisions.​
-
-Utilise onDelete: Cascade avec prudence et préfère les archives logiques si nécessaire au lieu de supprimer définitivement.​
-
-Maintiens contentText synchronisé avec content pour le SEO et la recherche, par tâche côté app.​
-
-Si tu modifies des noms SQL, garde @map et @@map alignés pour préserver la compatibilité avec les migrations et le code existant.​
-
-
-
-
-
-
-
-*/
-
-
-
-
-
-// Enums
 enum PostStatus {
   DRAFT
+  UNDER_REVIEW
   PUBLISHED
   SCHEDULED
   ARCHIVED
@@ -403,64 +209,72 @@ enum CommentStatus {
   DELETED
 }
 
-// Post principal avec réponses (self-relation)
 model Post {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  title         String
-  subtitle      String?
-  // contenu riche stocké en JSON (ex. blocs, mdx sérialisé, structure d'éditeur)
-  content       Json?
-  // version texte pour SEO/recherche plein texte
-  contentText   String?        @map("content_text")
-  excerpt       String?
-  coverImageUrl String?        @map("cover_image_url")
-  canonicalUrl  String?        @map("canonical_url")
-  ogImageUrl    String?        @map("og_image_url")
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  subtitle       String?
+  content        Json?
+  contentText    String?        @map("content_text")
+  excerpt        String?
+  coverImageUrl  String?        @map("cover_image_url")
+  canonicalUrl   String?        @map("canonical_url")
+  ogImageUrl     String?        @map("og_image_url")
 
-  status        PostStatus     @default(DRAFT)
-  visibility    PostVisibility @default(PUBLIC)
-  publishedAt   DateTime?      @map("published_at")
-  scheduledAt   DateTime?      @map("scheduled_at")
+  status         PostStatus     @default(DRAFT)
+  visibility     PostVisibility @default(PUBLIC)
+  publishedAt    DateTime?      @map("published_at")
+  scheduledAt    DateTime?      @map("scheduled_at")
 
-  readingTime   Int?           @map("reading_time")
-  wordCount     Int?           @map("word_count")
-  language      String?
+  readingTime    Int?           @map("reading_time")
+  wordCount      Int?           @map("word_count")
+  language       String?
 
-  authorId      String         @map("author_id")
-  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  // Author
+  authorId       String         @map("author_id")
+  author         User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  // réponses/threads
-  parentId      String?        @map("parent_id")
-  parent        Post?          @relation("PostReplies", fields: [parentId], references: [id])
-  children      Post[]         @relation("PostReplies")
+  // Threading
+  parentId       String?        @map("parent_id")
+  parent         Post?          @relation("PostReplies", fields: [parentId], references: [id])
+  children       Post[]         @relation("PostReplies")
 
-  // médias et contenu associé
-  attachments   MediaAsset[]
-  codeSnippets  CodeSnippet[]
+  // Media
+  attachments    MediaAsset[]
+  codeSnippets   CodeSnippet[]
 
-  // taxonomie
-  tags          PostsOnTags[]
-  categories    PostsOnCategories[]
+  // Taxonomy
+  tags           PostsOnTags[]
+  categories     PostsOnCategories[]
 
-  // interactions
-  comments      Comment[]
-  reactions     Reaction[]
+  // Interactions
+  comments       Comment[]
+  reactions      Reaction[]
 
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt      @map("updated_at")
+  // Project association
+  projectId      String?        @map("project_id")
+  project        Project?       @relation(fields: [projectId], references: [id])
+
+  // Circle association
+  circleId       String?        @map("circle_id")
+  circle         Circle?        @relation(fields: [circleId], references: [id])
+
+  // Peer review
+  reviewAssignments ReviewAssignment[]
+
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt      @map("updated_at")
 
   @@index([authorId, status, publishedAt])
   @@index([slug])
-  @@map("post")
+  @@index([circleId, visibility])
+  @@map("posts")
 }
 
-// Médias attachés (images, vidéos, fichiers, embeds, code)
 model MediaAsset {
-  id         String    @id @default(cuid())
-  postId     String    @map("post_id")
-  post       Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-
+  id         String   @id @default(cuid())
+  postId     String   @map("post_id")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   type       MediaType
   url        String
   provider   String?
@@ -468,57 +282,52 @@ model MediaAsset {
   alt        String?
   caption    String?
   position   Int?
-
-  mimeType   String?   @map("mime_type")
-  sizeBytes  Int?      @map("size_bytes")
+  mimeType   String?  @map("mime_type")
+  sizeBytes  Int?     @map("size_bytes")
   width      Int?
   height     Int?
-  durationMs Int?      @map("duration_ms")
-  meta       Json?     // métadonnées libres (ex. thumbnails, codecs, palette)
-
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt      @map("updated_at")
+  durationMs Int?     @map("duration_ms")
+  meta       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt      @map("updated_at")
 
   @@index([postId, type, position])
-  @@map("media_asset")
+  @@map("media_assets")
 }
 
-// Extraits de code dédiés (optionnel si tu ne veux pas tout mettre en JSON)
 model CodeSnippet {
-  id              String    @id @default(cuid())
-  postId          String    @map("post_id")
-  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  title           String?
-  language        String
-  filename        String?
-  code            String
-  highlightedHtml String?   @map("highlighted_html")
-
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt      @map("updated_at")
+  id               String   @id @default(cuid())
+  postId           String   @map("post_id")
+  post             Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  title            String?
+  language         String
+  filename         String?
+  code             String
+  highlightedHtml  String?  @map("highlighted_html")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt      @map("updated_at")
 
   @@index([postId, language])
-  @@map("code_snippet")
+  @@map("code_snippets")
 }
 
-// Tags m-n explicite
 model Tag {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  slug        String        @unique
+  id          String          @id @default(cuid())
+  name        String          @unique
+  slug        String          @unique
   description String?
   posts       PostsOnTags[]
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt      @map("updated_at")
-  @@map("tag")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt      @map("updated_at")
+  
+  @@map("tags")
 }
 
 model PostsOnTags {
-  postId     String @map("post_id")
-  tagId      String @map("tag_id")
-  post       Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  tag        Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  postId     String   @map("post_id")
+  tagId      String   @map("tag_id")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now()) @map("assigned_at")
   assignedBy String?  @map("assigned_by")
 
@@ -526,22 +335,19 @@ model PostsOnTags {
   @@map("posts_on_tags")
 }
 
-// Catégories hiérarchiques + m-n
 model Category {
-  id          String               @id @default(cuid())
-  name        String               @unique
-  slug        String               @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
+  slug        String           @unique
   description String?
-
-  parentId    String?              @map("parent_id")
-  parent      Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[]           @relation("CategoryHierarchy")
-
+  parentId    String?          @map("parent_id")
+  parent      Category?        @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]       @relation("CategoryHierarchy")
   posts       PostsOnCategories[]
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt      @map("updated_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt      @map("updated_at")
 
-  @@map("category")
+  @@map("categories")
 }
 
 model PostsOnCategories {
@@ -556,82 +362,689 @@ model PostsOnCategories {
   @@map("posts_on_categories")
 }
 
-// Commentaires threadés (réponses de commentaires)
 model Comment {
   id          String        @id @default(cuid())
   postId      String        @map("post_id")
   post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   authorId    String        @map("author_id")
   author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  content     Json?         // riche (texte, mentions, emojis)
+  content     Json?
   contentText String?       @map("content_text")
   status      CommentStatus @default(VISIBLE)
-
   parentId    String?       @map("parent_id")
   parent      Comment?      @relation("CommentThread", fields: [parentId], references: [id])
   children    Comment[]     @relation("CommentThread")
-
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt      @map("updated_at")
 
   @@index([postId, parentId])
-  @@map("comment")
+  @@map("comments")
 }
 
-// Réactions (likes, claps, etc.)
 model Reaction {
   id        String       @id @default(cuid())
   postId    String       @map("post_id")
   post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   userId    String       @map("user_id")
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   type      ReactionType @default(LIKE)
   createdAt DateTime     @default(now()) @map("created_at")
 
   @@unique([postId, userId, type])
-  @@map("reaction")
+  @@map("reactions")
 }
+
+///////////////////////////////
+/////  peer review (blog)  /////
+///////////////////////////////
+
+model ReviewAssignment {
+  id         String   @id @default(cuid())
+  postId     String   @map("post_id")
+  reviewerId String   @map("reviewer_id")
+  status     String   @default("pending")
+  score      Int?
+  feedback   String?
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  reviewedAt DateTime? @map("reviewed_at")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, reviewerId])
+  @@map("review_assignments")
+}
+
+//////////////////////
+///// FAQ models /////
+//////////////////////
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String? /// category of the FAQ : "general", "The Projects", "The Blog" "the Circles" "other")
+  rating    Int?     @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("faqs")
+}
+
 
 //////////////////////////
 ///// project models /////
 //////////////////////////
+
+enum ProjectType {
+  DONATION
+  REWARD
+  EQUITY
+  CROWDLENDING
+  KITTY
+  IMPACT_SPRINT
+}
+
+enum ProjectStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  SUCCESSFUL
+  FAILED
+  CANCELLED
+  SUSPENDED
+}
+
+enum ProjectCategory {
+  ECOLOGY
+  SOCIAL
+  EDUCATION
+  TECHNOLOGY
+  HEALTH
+  CULTURE
+  INNOVATION
+  OTHER
+}
+
+enum ProjectImpactType {
+  ENVIRONMENTAL
+  SOCIAL
+  ECONOMIC
+}
+
 model Project {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  shortDescription String?  @map("short_description")
+
+  // General info
+  type            ProjectType
+  status          ProjectStatus @default(DRAFT)
+  category        ProjectCategory
+  location        String?
+
+  // Funding
+  fundingGoal     Float    @map("funding_goal")
+  amountRaised    Float    @map("amount_raised") @default(0)
+  currency        String   @default("EUR")
+
+  // Timeline
+  startDate       DateTime? @map("start_date")
+  endDate         DateTime? @map("end_date")
+  duration        Int?
+
+  // Project owner
+  ownerId         String    @map("owner_id")
+  owner           User      @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  organization    String?
+  legalStatus     String?   @map("legal_status")
+
+  // Legal entity
+  legalEntityId   String?   @map("legal_entity_id")
+  legalEntity     LegalEntity? @relation(fields: [legalEntityId], references: [id])
+
+  // Contact
+  website         String?
+  socialMedia     Json?     @map("social_media")
+  contactEmail    String?   @map("contact_email")
+  contactPhone    String?   @map("contact_phone")
+
+  // Impact
+  impactTypes        ProjectImpactType[] @map("impact_types")
+  impactDescription  String?            @map("impact_description")
+  impactIndicators   String[]           @map("impact_indicators")
+  sdgAlignment       Int[]              @map("sdg_alignment")
+
+  // Media
+  images         String[]
+  videos         String[]
+  documents      String[]
+
+  // Settings
+  visibility        PostVisibility @default(PUBLIC)
+  allowComments     Boolean        @map("allow_comments") @default(true)
+  enableImpactSprint Boolean       @map("enable_impact_sprint") @default(false)
+
+  // Relations
+  members       ProjectMember[]
+  posts         Post[]
+  updates       ProjectUpdate[]
+  rewards       ProjectReward[]
+  donations     ProjectDonation[]
+  investments   ProjectInvestment[]
+  loans         ProjectLoan[]
+  wallets       Wallet[]
+
+  // Financial data
+  valuation         Float?
+  minInvestment     Float? @map("min_investment")
+  capitalPercentage Float? @map("capital_percentage")
+  expectedInvestors Int?   @map("expected_investors")
+  taxAdvantages     String? @map("tax_advantages")
+
+  // Lending data
+  interestRate      Float?  @map("interest_rate")
+  loanDuration      Int?    @map("loan_duration")
+  repaymentFrequency String? @map("repayment_frequency")
+  minLoanAmount     Float?  @map("min_loan_amount")
+  guarantees        String?
+
+  // Impact Sprint
+  sprintProjects    SprintProject[]
+  pledgeSelections  PledgeSelection[]
+
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt      @map("updated_at")
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([type])
+  @@index([category])
+  @@map("projects")
+  Sprint Sprint[]
+  Transaction Transaction[]
+  CircleProject CircleProject[]
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  role      String
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+model ProjectUpdate {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  title     String
+  content   String
+  images    String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_updates")
+}
+
+model ProjectReward {
   id          String   @id @default(cuid())
-  name        String
-  ownerId     String   @map("owner_id")
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  description String?
-  startDate   DateTime @map("start_date")
-  endDate     DateTime @map("end_date")
+  projectId   String   @map("project_id")
+  amount      Float
+  title       String
+  description String
+  image       String?
+  deliveryDate DateTime? @map("delivery_date")
+  quantity    Int?
+  claimed     Int       @default(0)
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  donations   ProjectDonation[]
+
+  @@map("project_rewards")
+}
+
+model ProjectDonation {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  userId      String   @map("user_id")
+  amount      Float
+  isAnonymous Boolean  @default(false) @map("is_anonymous")
+  message     String?
+  rewardId    String?  @map("reward_id")
+  status      String   @default("completed")
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward      ProjectReward? @relation(fields: [rewardId], references: [id])
+
+  @@map("project_donations")
+}
+
+model ProjectInvestment {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  amount    Float
+  shares    Float?
+  status    String   @default("pending")
+  createdAt DateTime @default(now()) @map("created_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("project_investments")
+}
+
+model ProjectLoan {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  amount    Float
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("project_loans")
 }
 
 /////////////////////////
 ///// Circle models /////
 /////////////////////////
+
+enum CircleType {
+  THEMATIC
+  SUPPORT
+  SYNERGY
+}
+
+enum CircleMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  FACILITATOR
+  SECRETARY
+  PROJECT_REFERENT
+  ETHICS_GUARDIAN
+}
+
+enum CircleParticipationMode {
+  SYNCHRONOUS
+  ASYNCHRONOUS
+}
+
 model Circle {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  creatorId   String   @map("creator_id")
-  creator     User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  description       String?
+  type              CircleType
+  theme             String?
+  participationMode CircleParticipationMode @map("participation_mode")
+
+  // Configuration
+  maxMembers        Int?     @map("max_members")
+  isPublic          Boolean  @map("is_public") @default(true)
+  isActive          Boolean  @map("is_active") @default(true)
+
+  // Financial management
+  monthlyFee        Float?   @map("monthly_fee") @default(10)
+  funds             Float    @default(0)
+  allocatedFunds    Float    @map("allocated_funds") @default(0)
+
+  // Relations
+  creatorId         String   @map("creator_id")
+  creator           User     @relation("CircleOwner", fields: [creatorId], references: [id], onDelete: Cascade)
+  members           CircleMember[]
+  circleProjects    CircleProject[]
+  posts             Post[]
+  subscriptions     Subscription[]
+  allocations       Allocation[]
+  wallets           Wallet[]
+  transactions      Transaction[]
+
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([type])
+  @@index([creatorId])
+  @@map("circles")
+}
+
+model CircleMember {
+  id        String   @id @default(cuid())
+  circleId  String   @map("circle_id")
+  userId    String   @map("user_id")
+  role      CircleMemberRole
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  xp        Int      @default(0)
+  level     Int      @default(1)
+  circle    Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([circleId, userId])
+  @@map("circle_members")
+}
+
+model CircleProject {
+  id              String   @id @default(cuid())
+  circleId        String   @map("circle_id")
+  projectId       String   @map("project_id")
+  allocatedAmount Float    @map("allocated_amount") @default(0)
+  supportType     String   @map("support_type")
+  votedAt         DateTime? @map("voted_at")
+  status          String   @default("pending")
+  circle          Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([circleId, projectId])
+  @@map("circle_projects")
 }
 
 //////////////////////////////
-/////   payment models   /////
+/////  payment models    /////
 //////////////////////////////
 
-////////////////////////////
-/////   other models   /////
-////////////////////////////
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  type        String
+  amount      Float
+  currency    String   @default("EUR")
+  status      String   @default("pending")
+  description String?
+  projectId   String?  @map("project_id")
+  circleId    String?  @map("circle_id")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project? @relation(fields: [projectId], references: [id])
+  circle      Circle?  @relation(fields: [circleId], references: [id])
+  allocations Allocation[]
 
-/////////////////////////////
-/////  gallery models   /////
-/////////////////////////////
+  @@index([type, status, createdAt])
+  @@map("transactions")
+}
+
+///////////////////////////////
+/////  loyalty models     /////
+///////////////////////////////
+
+model UserXP {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  totalXP      Int      @default(0) @map("total_xp")
+  level        Int      @default(1)
+  impactRank   String?  @map("impact_rank")
+  donationXP   Int      @default(0) @map("donation_xp")
+  investmentXP Int      @default(0) @map("investment_xp")
+  contentXP    Int      @default(0) @map("content_xp")
+  communityXP  Int      @default(0) @map("community_xp")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("user_xp")
+}
+
+enum XPEventType { 
+  READ 
+  SHARE 
+  COMMENT 
+  REVIEW 
+  PLEDGE 
+  WIN 
+  BADGE 
+  SPEND 
+}
+
+model XPEvent {
+  id         String      @id @default(cuid())
+  userId     String      @map("user_id")
+  type       XPEventType
+  delta      Int
+  sourceType String?     @map("source_type")
+  sourceId   String?     @map("source_id")
+  metadata   Json?
+  createdAt  DateTime    @default(now()) @map("created_at")
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("xp_events")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  criteria    Json?
+  userBadges  UserBadge[]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  badgeId   String   @map("badge_id")
+  earnedAt  DateTime @default(now()) @map("earned_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+////////////////////////////////
+/////  compliance & flags  /////
+////////////////////////////////
+
+model LegalEntity {
+  id                 String   @id @default(cuid())
+  type               String
+  name               String?
+  country            String?
+  registrationNumber String?  @map("registration_number")
+  taxId              String?  @map("tax_id")
+  contactEmail       String?  @map("contact_email")
+  contactPhone       String?  @map("contact_phone")
+  ownerId            String?  @map("owner_id")
+  owner              User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  projects           Project[]
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("legal_entities")
+}
+
+model FeatureFlag {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  enabled   Boolean  @default(false)
+  rollout   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("feature_flags")
+}
+
+////////////////////////////////
+/////  subscriptions/split /////
+////////////////////////////////
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  circleId      String   @map("circle_id")
+  amount        Float    @default(10)
+  currency      String   @default("EUR")
+  status        String   @default("active")
+  startedAt     DateTime @default(now()) @map("started_at")
+  nextBillingAt DateTime? @map("next_billing_at")
+  cancelledAt   DateTime? @map("cancelled_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circle        Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, circleId])
+  @@map("subscriptions")
+}
+
+model Allocation {
+  id              String     @id @default(cuid())
+  circleId        String     @map("circle_id")
+  transactionId   String     @map("transaction_id")
+  operatingAmount Float      @map("operating_amount")
+  projectAmount   Float      @map("project_amount")
+  period          String?
+  createdAt       DateTime   @default(now()) @map("created_at")
+  circle          Circle     @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@map("allocations")
+}
+
+/////////////////////////
+///// Impact Sprint  ////
+/////////////////////////
+
+enum SprintStatus { 
+  DRAFT 
+  UPCOMING 
+  RUNNING 
+  SETTLED 
+  CANCELLED 
+}
+
+enum PledgeStatus { 
+  PROMISED 
+  SETTLED 
+  CANCELLED 
+  EXPIRED 
+}
+
+model Sprint {
+  id               String       @id @default(cuid())
+  name             String
+  slug             String       @unique
+  theme            String?
+  startAt          DateTime?    @map("start_at")
+  endAt            DateTime?    @map("end_at")
+  status           SprintStatus @default(DRAFT)
+  winnerProjectId  String?      @map("winner_project_id")
+  winnerProject    Project?     @relation(fields: [winnerProjectId], references: [id])
+  sprintProjects   SprintProject[]
+  pledges          Pledge[]
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  
+  @@map("sprints")
+}
+
+model SprintProject {
+  sprintId  String
+  projectId String
+  position  Int?
+  sprint    Sprint  @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@id([sprintId, projectId])
+  @@map("sprint_projects")
+}
+
+model Pledge {
+  id               String       @id @default(cuid())
+  sprintId         String       @map("sprint_id")
+  userId           String       @map("user_id")
+  amount           Float
+  status           PledgeStatus @default(PROMISED)
+  settledProjectId String?      @map("settled_project_id")
+  settledAt        DateTime?    @map("settled_at")
+  sprint           Sprint       @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pledgeSelections PledgeSelection[]
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  @@index([sprintId, userId])
+  @@map("pledges")
+}
+
+model PledgeSelection {
+  pledgeId  String
+  projectId String
+  pledge    Pledge  @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@id([pledgeId, projectId])
+  @@map("pledge_selections")
+}
+
+////////////////////////
+///// Wallet models ////
+////////////////////////
+
+enum WalletLedgerType { 
+  DEPOSIT 
+  WITHDRAW 
+  PROMISE_LOCK 
+  PROMISE_RELEASE 
+  PLEDGE_SETTLE 
+  REFUND 
+  SUBSCRIPTION_FEE 
+  ALLOCATION 
+  TRANSFER_IN 
+  TRANSFER_OUT 
+}
+
+enum WalletKind { 
+  USER 
+  CIRCLE 
+  PROJECT 
+}
+
+model Wallet {
+  id         String    @id @default(cuid())
+  userId     String?   @map("user_id")
+  circleId   String?   @map("circle_id")
+  projectId  String?   @map("project_id")
+  ownerKind  WalletKind
+  currency   String    @default("EUR")
+  chain      String?
+  asset      String?
+  address    String?
+  available  Float     @default(0)
+  locked     Float     @default(0)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circle     Circle?   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ledger     WalletLedger[]
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([circleId])
+  @@index([projectId])
+  @@map("wallets")
+}
+
+model WalletLedger {
+  id            String           @id @default(cuid())
+  walletId      String           @map("wallet_id")
+  type          WalletLedgerType
+  amount        Float
+  balanceAfter  Float            @map("balance_after")
+  referenceType String?          @map("reference_type")
+  referenceId   String?          @map("reference_id")
+  metadata      Json?
+  createdAt     DateTime         @default(now()) @map("created_at")
+  wallet        Wallet           @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@map("wallet_ledgers")
+}

@@ -5,11 +5,12 @@ import { motion } from "framer-motion";
 
 const navItems = [
   { name: "Accueil", href: "/" },
-  { name: "The Circle", href: "/thecircles" },
-  { name: "La Plateforme", href: "/projects" },
-  { name: "mondoBlog", href: "/blog" },
-  { name: "Notre Mission", href: "/comment-ca-marche" },
-  { name: "FAQ", href: "/faq" },
+  { name: "The Circle", href: "/public/thecircles" },
+  { name: "La Plateforme", href: "/public/projects" },
+  { name: "mondoBlog", href: "/public/blog" },
+  { name: "Notre Mission", href: "/public/comment-ca-marche" },
+  { name: "FAQ", href: "/public/faq" },
+  { name: "DEV", href: "/dev" },
 ];
 
 export const Nav: React.FC = () => {
